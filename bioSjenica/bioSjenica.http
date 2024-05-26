@@ -1,0 +1,6 @@
+@bioSjenica_HostAddress = http://localhost:5063
+
+GET {{bioSjenica_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
