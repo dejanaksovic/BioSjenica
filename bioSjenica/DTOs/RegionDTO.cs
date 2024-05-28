@@ -2,7 +2,7 @@
 
 namespace bioSjenica.Payloads
 {
-    public class RegionPayload
+    public class RegionDTO
     {
         public string Name { get; set; }
         public float Area { get; set; }

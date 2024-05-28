@@ -15,7 +15,7 @@ namespace bioSjenica.Repositories.RegionRepository
             _logger = logger;
         }
 
-        public async Task<Region> CreateRegion(RegionPayload newRegion)
+        public async Task<Region> CreateRegion(RegionDTO newRegion)
         {
 
             var toAddRegion = new Region();
@@ -67,7 +67,7 @@ namespace bioSjenica.Repositories.RegionRepository
             }
         }
 
-        public async Task<Region> UpdateRegion(RegionPayload updateRegion, int id)
+        public async Task<Region> UpdateRegion(RegionDTO updateRegion, int id)
         {
             var regionToUpdate = _sqlContext.Regions.FirstOrDefault(r => r.Id == id);
             regionToUpdate.Name = updateRegion.Name;

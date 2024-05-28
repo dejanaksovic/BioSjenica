@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata.Ecma335;
 
 namespace bioSjenica.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Region
     {
         public int Id { get; set; }

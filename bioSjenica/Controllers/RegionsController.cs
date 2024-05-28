@@ -18,7 +18,7 @@ namespace bioSjenica.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Region>> CreateRegion([FromBody] RegionPayload payload)
+        public async Task<ActionResult<Region>> CreateRegion([FromBody] RegionDTO payload)
         {
             var createdRegion = await _regionRepository.CreateRegion(payload);
             if (createdRegion is null)
@@ -33,7 +33,7 @@ namespace bioSjenica.Controllers
         }
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult<Region>> UpdateRegion([FromBody] RegionPayload payload, [FromRoute] int id)
+        public async Task<ActionResult<Region>> UpdateRegion([FromBody] RegionDTO payload, [FromRoute] int id)
         {
             var updatedRegion = await _regionRepository.UpdateRegion(payload, id);
             if (updatedRegion is null)

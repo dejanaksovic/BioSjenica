@@ -11,8 +11,8 @@ using bioSjenica.Data;
 namespace bioSjenica.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    [Migration("20240526133635_initial")]
-    partial class initial
+    [Migration("20240526150315_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,7 @@ namespace bioSjenica.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProtectionType")
                         .IsRequired()
@@ -48,6 +48,9 @@ namespace bioSjenica.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Regions");
                 });
