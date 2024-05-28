@@ -1,7 +1,6 @@
 ﻿using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 using bioSjenica.Repositories.RegionRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bioSjenica.Controllers
@@ -31,7 +30,7 @@ namespace bioSjenica.Controllers
             var regions = await _regionRepository.GetAllRegions();
             return Ok(regions);
         }
-        [HttpPut]
+        [HttpPatch]
         [Route("{regionName}")]
         public async Task<ActionResult<ReadRegionDTO>> UpdateRegion([FromBody] CreateRegionDTO payload, [FromRoute] string regionName)
         {

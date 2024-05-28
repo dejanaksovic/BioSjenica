@@ -2,9 +2,7 @@ using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 //Custom mappers
-builder.Services.AddScoped<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
+builder.Services.AddScoped<IRegionMapper, RegionMapper>();
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {

@@ -1,5 +1,5 @@
-﻿using bioSjenica.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using bioSjenica.DTOs.AmnimalsDTO;
+using bioSjenica.Models;
 
 namespace bioSjenica.DTOs.Regions
 {
@@ -11,7 +11,7 @@ namespace bioSjenica.DTOs.Regions
         public string Villages { get; set; }
         public List<FeedingGround>? FeedingGrounds { get; set; }
         public List<Plant>? Plants { get; set; }
-        public List<Animal>? Animals { get; set; }
+        public List<ReadAnimalDTO>? Animals { get; set; }
         public string ProtectionType { get; set; }
     }
 }

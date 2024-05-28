@@ -1,5 +1,4 @@
-﻿using bioSjenica.Controllers;
-using bioSjenica.CustomMappers;
+﻿using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.Models;
@@ -91,7 +90,9 @@ namespace bioSjenica.Repositories.AnimalRepository
             try
             {
                 //Get the required animal
-                Animal animalToUpdate = await _sqlContext.Animals.FirstOrDefaultAsync(a => a.LatinicName.ToLower() == latinicOrCommonName.ToLower() || a.CommonName.ToLower() == latinicOrCommonName.ToLower());
+                Animal animalToUpdate = await _sqlContext.Animals
+                .Include(a => a.Regions)
+                .FirstOrDefaultAsync(a => a.LatinicName.ToLower() == latinicOrCommonName.ToLower() || a.CommonName.ToLower() == latinicOrCommonName.ToLower());
                 //Handle not found animal exception
                 if(animalToUpdate is null)
                 {
@@ -105,9 +106,9 @@ namespace bioSjenica.Repositories.AnimalRepository
                 animalToUpdate.RingNumber = updateAnimal.RingNumber;
                 animalToUpdate.LatinicName = updateAnimal.LatinicName;
                 animalToUpdate.CommonName = updateAnimal.CommonName;
+                //Remove children
                 animalToUpdate.Regions = updateAnimal.Regions ?? animalToUpdate.Regions;
                 animalToUpdate.FeedingGrounds = updateAnimal.FeedingGrounds ?? animalToUpdate.FeedingGrounds;
-
                 //Save changes
                 await _sqlContext.SaveChangesAsync();
                 //Create readDTO from new animal

@@ -1,4 +1,4 @@
-﻿using bioSjenica.CustomMappers.CustomMappers;
+﻿using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
@@ -49,7 +49,9 @@ namespace bioSjenica.Repositories.RegionRepository
         }
         public async Task<List<ReadRegionDTO>> GetAllRegions()
         {
-            List<Region> regions = await _sqlContext.Regions.ToListAsync();
+            List<Region> regions = await _sqlContext.Regions
+                                        .Include(r => r.Animals)
+                                        .ToListAsync();
             List<ReadRegionDTO> regionsToReturn = new();
             foreach(Region region in regions)
             {
@@ -59,7 +61,9 @@ namespace bioSjenica.Repositories.RegionRepository
         }
         public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegionPayload, string regionName)
         {
-            Region regionToUpdate = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
+            Region regionToUpdate = _sqlContext.Regions
+                                    .Include(r => r.Animals)
+                                    .FirstOrDefault(r => r.Name == regionName);
 
             Region updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
             

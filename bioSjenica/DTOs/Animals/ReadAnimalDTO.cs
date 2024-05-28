@@ -1,5 +1,5 @@
-﻿using bioSjenica.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using bioSjenica.DTOs.Regions;
+using bioSjenica.Models;
 
 namespace bioSjenica.DTOs.AmnimalsDTO
 {
@@ -9,7 +9,7 @@ namespace bioSjenica.DTOs.AmnimalsDTO
         public string LatinicName { get; set; }
         public string CommonName { get; set; }
         public string ImageUrl { get; set; }
-        public List<Region>? Regions { get; set; }
+        public List<ReadRegionDTO>? Regions { get; set; }
         public List<FeedingGround>? FeedingGrounds { get; set; }
     }
 }

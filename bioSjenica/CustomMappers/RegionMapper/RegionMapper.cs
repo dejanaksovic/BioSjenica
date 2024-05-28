@@ -1,4 +1,5 @@
 ﻿using bioSjenica.Data;
+using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +11,13 @@ namespace bioSjenica.CustomMappers
         //Need databse :D
         private readonly SqlContext _sqlContext;
         private readonly ILogger<RegionMapper> _logger;
+        private readonly IAnimalMapper _animalMapper;
 
-        public RegionMapper(SqlContext sqlContext, ILogger<RegionMapper> logger)
+        public RegionMapper(SqlContext sqlContext, ILogger<RegionMapper> logger, IAnimalMapper animalMapper)
         {
             _sqlContext = sqlContext;
             _logger = logger;
+            _animalMapper = animalMapper;
         }
         public async Task<Region> CreateToRegion(CreateRegionDTO DTO)
         {
@@ -86,6 +89,14 @@ namespace bioSjenica.CustomMappers
         }
         public async Task<ReadRegionDTO> RegionToRead(Region region)
         {
+            List<ReadAnimalDTO> animalDTOs = new List<ReadAnimalDTO>();
+
+            if(!(region.Animals is null)) {
+                foreach(var animal in region.Animals) {
+                    animalDTOs.Add(await _animalMapper.AnimalToRead(animal));
+                } 
+            }
+
             return new ReadRegionDTO
             {
                 Name = region.Name,
@@ -93,7 +104,7 @@ namespace bioSjenica.CustomMappers
                 Villages = region.Villages,
                 ProtectionType = region.ProtectionType,
                 Plants = region.Plants,
-                Animals = region.Animals,
+                Animals = animalDTOs.Count() == 0 ? null : animalDTOs,
                 FeedingGrounds = region.FeedingGrounds,
             };
         }

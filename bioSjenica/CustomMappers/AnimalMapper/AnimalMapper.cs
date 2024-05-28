@@ -1,5 +1,6 @@
 using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
+using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,26 @@ namespace bioSjenica.CustomMappers {
       }
       public async Task<ReadAnimalDTO> AnimalToRead(Animal animal)
       {
+        // warning: not adding more nesting, it kinda stops at level one
+        // If you want to get the information about individual regions make seperate api call
+        List<ReadRegionDTO> regionsDTO = new List<ReadRegionDTO>();
+        if(!(animal.Regions is null)) {
+          foreach(Region region in animal.Regions) {
+            var dto = new ReadRegionDTO(){
+              Name = region.Name,
+              Area = region.Area,
+              Villages = region.Villages,
+              ProtectionType = region.ProtectionType,
+            };
+            regionsDTO.Add(dto);
+          }
+        }
         return new ReadAnimalDTO() {
           RingNumber = animal.RingNumber,
           CommonName = animal.CommonName,
           LatinicName = animal.LatinicName,
           ImageUrl = animal.ImageUrl,
-          Regions = animal.Regions,
+          Regions = regionsDTO.Count() == 0 ? null : regionsDTO,
           FeedingGrounds = animal.FeedingGrounds,
         };
       }
