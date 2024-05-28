@@ -1,7 +1,9 @@
-﻿using bioSjenica.Data;
+﻿using bioSjenica.CustomMappers.CustomMappers;
+using bioSjenica.Data;
+using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
-using bioSjenica.Payloads;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 
 namespace bioSjenica.Repositories.RegionRepository
 {
@@ -9,71 +11,73 @@ namespace bioSjenica.Repositories.RegionRepository
     {
         private readonly SqlContext _sqlContext;
         private readonly ILogger<RegionRepository> _logger;
-        public RegionRepository(SqlContext context, ILogger<RegionRepository> logger)
+        private readonly IRegionMapper _regionMapper;
+
+        public RegionRepository(SqlContext context, ILogger<RegionRepository> logger, IRegionMapper regionMapper)
         {
             _sqlContext = context;
             _logger = logger;
+            _regionMapper = regionMapper;
         }
 
-        public async Task<Region> CreateRegion(RegionDTO newRegion)
+        public async Task<ReadRegionDTO> CreateRegion(CreateRegionDTO newRegion)
         {
+            Region regionToAdd = await _regionMapper.CreateToRegion(newRegion);
+            
+            //Save changes
+            _sqlContext.Add(regionToAdd);
+            await _sqlContext.SaveChangesAsync();
 
-            var toAddRegion = new Region();
+            ReadRegionDTO regionToSend = await _regionMapper.RegionToRead(regionToAdd);
 
-            toAddRegion.Name = newRegion.Name;
-            toAddRegion.Area = newRegion.Area;
-            toAddRegion.ProtectionType = newRegion.ProtectionType;
-            toAddRegion.Villages = newRegion.Villages;
-
-            _sqlContext.Add(toAddRegion);
-
-            try
-            {
-                await _sqlContext.SaveChangesAsync();
-                return toAddRegion;
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
+            return regionToSend;
         }
-
-        public async Task<Region> DeleteRegionById(int id)
+        public async Task<ReadRegionDTO> DeleteRegionById(string regionName)
         {
-            var regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Id == id);
-            if (regionToDelete is null)
-                return null;
-            _sqlContext.Remove(regionToDelete);
-            try
+            Region regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
+            //TODO: Handle not found exception
+            if(regionToDelete is null)
             {
-                await _sqlContext.SaveChangesAsync();
-                return regionToDelete;
+                _logger.LogError("Region not found");
+                throw new NotImplementedException();
             }
-            catch (Exception e)
+            _sqlContext.Regions.Remove(regionToDelete);
+            await _sqlContext.SaveChangesAsync();
+            //Read dto to return
+            ReadRegionDTO regionToRetun = new()
             {
-                return null;
-            }
+                Name = regionToDelete.Name,
+                Area = regionToDelete.Area,
+                Villages = regionToDelete.Villages,
+                ProtectionType = regionToDelete.ProtectionType,
+                Animals = regionToDelete.Animals,
+                Plants = regionToDelete.Plants,
+                FeedingGrounds = regionToDelete.FeedingGrounds,
+            };
+            return regionToRetun;
         }
-
-        public async Task<List<Region>> GetAllRegions()
+        public async Task<List<ReadRegionDTO>> GetAllRegions()
         {
-            try
+            List<Region> regions = await _sqlContext.Regions.ToListAsync();
+            List<ReadRegionDTO> regionsToReturn = new();
+            foreach(Region region in regions)
             {
-                return await _sqlContext.Regions
-                    .Include(c => c.Plants)
-                    .Include(c => c.Animals)
-                    .Include(c => c.FeedingGrounds)
-                    .ToListAsync();
+                regionsToReturn.Add(new()
+                {
+                    Name = region.Name,
+                    Area = region.Area,
+                    Villages = region.Villages,
+                    ProtectionType = region.ProtectionType,
+                    Animals = region.Animals,
+                    Plants = region.Plants,
+                    FeedingGrounds = region.FeedingGrounds
+                });
             }
-            catch (Exception e)
-            {
-                return null;
-            }
+            return regionsToReturn;
         }
-
-        public async Task<Region> UpdateRegion(RegionDTO updateRegion, int id)
+        public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegion, string regionName)
         {
-            var regionToUpdate = _sqlContext.Regions.FirstOrDefault(r => r.Id == id);
+            Region regionToUpdate = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
             regionToUpdate.Name = updateRegion.Name;
             regionToUpdate.Area = updateRegion.Area;
             regionToUpdate.Villages = updateRegion.Villages;
@@ -82,7 +86,7 @@ namespace bioSjenica.Repositories.RegionRepository
             try
             {
                 await _sqlContext.SaveChangesAsync();
-                return regionToUpdate;
+                return new ReadRegionDTO();
             }
 
             catch(Exception e)

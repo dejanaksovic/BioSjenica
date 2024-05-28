@@ -1,5 +1,5 @@
-﻿using bioSjenica.Models;
-using bioSjenica.Payloads;
+﻿using bioSjenica.DTOs.Regions;
+using bioSjenica.Models;
 using bioSjenica.Repositories.RegionRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace bioSjenica.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Region>> CreateRegion([FromBody] RegionDTO payload)
+        public async Task<ActionResult<Region>> CreateRegion([FromBody] CreateRegionDTO payload)
         {
             var createdRegion = await _regionRepository.CreateRegion(payload);
             if (createdRegion is null)
@@ -32,19 +32,19 @@ namespace bioSjenica.Controllers
             return Ok(regions);
         }
         [HttpPut]
-        [Route("{id}")]
-        public async Task<ActionResult<Region>> UpdateRegion([FromBody] RegionDTO payload, [FromRoute] int id)
+        [Route("{regionName}")]
+        public async Task<ActionResult<ReadRegionDTO>> UpdateRegion([FromBody] CreateRegionDTO payload, [FromRoute] string regionName)
         {
-            var updatedRegion = await _regionRepository.UpdateRegion(payload, id);
+            var updatedRegion = await _regionRepository.UpdateRegion(payload, regionName);
             if (updatedRegion is null)
                 return NotFound("The required region is not found");
-            return updatedRegion;
+            return Ok(updatedRegion);
         }
         [HttpDelete]
-        [Route("{id}")]
-        public async Task<ActionResult<Region>> DeleteRegion([FromRoute] int id)
+        [Route("{regionName}")]
+        public async Task<ActionResult<Region>> DeleteRegion([FromRoute] string regionName)
         {
-            var deletedRegion = await _regionRepository.DeleteRegionById(id);
+            var deletedRegion = await _regionRepository.DeleteRegionById(regionName);
             if (deletedRegion is null)
                 return NotFound("The region was not found");
             return Ok(deletedRegion);

@@ -1,18 +1,29 @@
+using bioSjenica.CustomMappers.CustomMappers;
 using bioSjenica.Data;
+using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Custom services
+builder.Services.AddTransient<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {
