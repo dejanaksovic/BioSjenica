@@ -13,6 +13,8 @@ namespace bioSjenica.Models
         public string ImageUrl { get; set; }
         [Required]
         public string CommonName { get; set; }
+        [Required]
+        public List<Region> Regions{ get; set; }
         public string? SpecialDecision { get; set; }
         public DateTime? SpecialTime { get; set; }
     }

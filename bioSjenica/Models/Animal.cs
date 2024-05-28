@@ -14,6 +14,7 @@ namespace bioSjenica.Models
         [Required]
         public string ImageUrl { get; set; }
         [Required]
-        public string Info { get; set; }
+        public List<Region> Regions { get; set; }
+        public List<FeedingGround> FeedingGrounds { get; set; }
     }
 }

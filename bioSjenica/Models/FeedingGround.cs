@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace bioSjenica.Models
 {
@@ -8,11 +9,13 @@ namespace bioSjenica.Models
         [Required]
         public int GroundNumber { get; set; }
         [Required]
-        public string Area { get; set; }
+        [ForeignKey("Region")]
+        public int RegionId { get; set; }
+        public Region Region { get; set; }
         [Required]
         public DateTime StartWork { get; set; }
         [Required]
         public DateTime EndWork { get; set; }
-
+        public List<Animal> Animals { get; set; }
     }
 }

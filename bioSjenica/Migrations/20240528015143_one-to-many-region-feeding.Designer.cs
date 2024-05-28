@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bioSjenica.Data;
 
@@ -11,9 +12,11 @@ using bioSjenica.Data;
 namespace bioSjenica.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20240528015143_one-to-many-region-feeding")]
+    partial class onetomanyregionfeeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,51 +24,6 @@ namespace bioSjenica.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("AnimalFeedingGround", b =>
-                {
-                    b.Property<int>("AnimalsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FeedingGroundsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AnimalsId", "FeedingGroundsId");
-
-                    b.HasIndex("FeedingGroundsId");
-
-                    b.ToTable("AnimalFeedingGround");
-                });
-
-            modelBuilder.Entity("AnimalRegion", b =>
-                {
-                    b.Property<int>("AnimalsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RegionsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AnimalsId", "RegionsId");
-
-                    b.HasIndex("RegionsId");
-
-                    b.ToTable("AnimalRegion");
-                });
-
-            modelBuilder.Entity("PlantRegion", b =>
-                {
-                    b.Property<int>("PlantsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RegionsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PlantsId", "RegionsId");
-
-                    b.HasIndex("RegionsId");
-
-                    b.ToTable("PlantRegion");
-                });
 
             modelBuilder.Entity("bioSjenica.Models.Animal", b =>
                 {
@@ -84,6 +42,10 @@ namespace bioSjenica.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LatinicName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -213,60 +175,15 @@ namespace bioSjenica.Migrations
                     b.ToTable("Workers");
                 });
 
-            modelBuilder.Entity("AnimalFeedingGround", b =>
-                {
-                    b.HasOne("bioSjenica.Models.Animal", null)
-                        .WithMany()
-                        .HasForeignKey("AnimalsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("bioSjenica.Models.FeedingGround", null)
-                        .WithMany()
-                        .HasForeignKey("FeedingGroundsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AnimalRegion", b =>
-                {
-                    b.HasOne("bioSjenica.Models.Animal", null)
-                        .WithMany()
-                        .HasForeignKey("AnimalsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("bioSjenica.Models.Region", null)
-                        .WithMany()
-                        .HasForeignKey("RegionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PlantRegion", b =>
-                {
-                    b.HasOne("bioSjenica.Models.Plant", null)
-                        .WithMany()
-                        .HasForeignKey("PlantsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("bioSjenica.Models.Region", null)
-                        .WithMany()
-                        .HasForeignKey("RegionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("bioSjenica.Models.FeedingGround", b =>
                 {
-                    b.HasOne("bioSjenica.Models.Region", "Region")
+                    b.HasOne("bioSjenica.Models.Region", "region")
                         .WithMany("FeedingGrounds")
                         .HasForeignKey("RegionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Region");
+                    b.Navigation("region");
                 });
 
             modelBuilder.Entity("bioSjenica.Models.Region", b =>

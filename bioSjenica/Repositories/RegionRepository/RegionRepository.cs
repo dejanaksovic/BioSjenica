@@ -59,7 +59,11 @@ namespace bioSjenica.Repositories.RegionRepository
         {
             try
             {
-                return await _sqlContext.Regions.ToListAsync();
+                return await _sqlContext.Regions
+                    .Include(c => c.Plants)
+                    .Include(c => c.Animals)
+                    .Include(c => c.FeedingGrounds)
+                    .ToListAsync();
             }
             catch (Exception e)
             {

@@ -14,6 +14,9 @@ namespace bioSjenica.Models
         public float Area { get; set; }
         [Required]
         public string Villages { get; set; }
+        public List<FeedingGround> FeedingGrounds { get; set; }
+        public List<Plant> Plants { get; set; }
+        public List<Animal> Animals { get; set; }
         public string ProtectionType { get; set; }
     }
 }
