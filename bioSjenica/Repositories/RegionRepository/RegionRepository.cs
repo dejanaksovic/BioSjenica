@@ -44,16 +44,7 @@ namespace bioSjenica.Repositories.RegionRepository
             _sqlContext.Regions.Remove(regionToDelete);
             await _sqlContext.SaveChangesAsync();
             //Read dto to return
-            ReadRegionDTO regionToRetun = new()
-            {
-                Name = regionToDelete.Name,
-                Area = regionToDelete.Area,
-                Villages = regionToDelete.Villages,
-                ProtectionType = regionToDelete.ProtectionType,
-                Animals = regionToDelete.Animals,
-                Plants = regionToDelete.Plants,
-                FeedingGrounds = regionToDelete.FeedingGrounds,
-            };
+            ReadRegionDTO regionToRetun = await _regionMapper.RegionToRead(regionToDelete);
             return regionToRetun;
         }
         public async Task<List<ReadRegionDTO>> GetAllRegions()
@@ -62,31 +53,28 @@ namespace bioSjenica.Repositories.RegionRepository
             List<ReadRegionDTO> regionsToReturn = new();
             foreach(Region region in regions)
             {
-                regionsToReturn.Add(new()
-                {
-                    Name = region.Name,
-                    Area = region.Area,
-                    Villages = region.Villages,
-                    ProtectionType = region.ProtectionType,
-                    Animals = region.Animals,
-                    Plants = region.Plants,
-                    FeedingGrounds = region.FeedingGrounds
-                });
+                regionsToReturn.Add(await _regionMapper.RegionToRead(region));
             }
             return regionsToReturn;
         }
-        public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegion, string regionName)
+        public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegionPayload, string regionName)
         {
             Region regionToUpdate = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
-            regionToUpdate.Name = updateRegion.Name;
-            regionToUpdate.Area = updateRegion.Area;
-            regionToUpdate.Villages = updateRegion.Villages;
-            regionToUpdate.ProtectionType = updateRegion.ProtectionType;
+
+            Region updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
+            
+            regionToUpdate.Name = updateRegion.Name ?? regionToUpdate.Name;
+            regionToUpdate.Area = updateRegionPayload.Area;
+            regionToUpdate.Villages = updateRegion.Villages ?? regionToUpdate.Villages;
+            regionToUpdate.ProtectionType = updateRegion.ProtectionType ?? regionToUpdate.ProtectionType;
+            regionToUpdate.FeedingGrounds = updateRegion.FeedingGrounds ?? regionToUpdate.FeedingGrounds;
+            regionToUpdate.Plants = updateRegion.Plants ?? regionToUpdate.Plants;
+            regionToUpdate.Animals = updateRegion.Animals ?? regionToUpdate.Animals;
 
             try
             {
                 await _sqlContext.SaveChangesAsync();
-                return new ReadRegionDTO();
+                return await _regionMapper.RegionToRead(updateRegion);
             }
 
             catch(Exception e)
