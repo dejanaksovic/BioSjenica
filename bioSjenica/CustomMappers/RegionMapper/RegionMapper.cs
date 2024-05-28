@@ -2,9 +2,8 @@
 using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace bioSjenica.CustomMappers.CustomMappers
+namespace bioSjenica.CustomMappers
 {
     public class RegionMapper : IRegionMapper
     {

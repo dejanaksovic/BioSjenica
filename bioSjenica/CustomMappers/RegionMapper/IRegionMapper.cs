@@ -1,7 +1,7 @@
 ﻿using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 
-namespace bioSjenica.CustomMappers.CustomMappers
+namespace bioSjenica.CustomMappers
 {
     public interface IRegionMapper
     {

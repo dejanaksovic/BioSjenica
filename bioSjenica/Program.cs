@@ -1,4 +1,4 @@
-using bioSjenica.CustomMappers.CustomMappers;
+using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
@@ -21,9 +21,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Custom services
-builder.Services.AddTransient<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
+//Custom mappers
+builder.Services.AddScoped<IRegionMapper, RegionMapper>();
+builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {
