@@ -10,9 +10,9 @@ namespace bioSjenica.CustomMappers.CustomMappers
     {
         //Need databse :D
         private readonly SqlContext _sqlContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<RegionMapper> _logger;
 
-        public RegionMapper(SqlContext sqlContext, ILogger logger)
+        public RegionMapper(SqlContext sqlContext, ILogger<RegionMapper> logger)
         {
             _sqlContext = sqlContext;
             _logger = logger;

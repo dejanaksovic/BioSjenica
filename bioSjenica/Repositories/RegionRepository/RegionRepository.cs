@@ -32,7 +32,7 @@ namespace bioSjenica.Repositories.RegionRepository
 
             return regionToSend;
         }
-        public async Task<ReadRegionDTO> DeleteRegionById(string regionName)
+        public async Task<ReadRegionDTO> DeleteRegionByName(string regionName)
         {
             Region regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
             //TODO: Handle not found exception

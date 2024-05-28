@@ -44,7 +44,7 @@ namespace bioSjenica.Controllers
         [Route("{regionName}")]
         public async Task<ActionResult<Region>> DeleteRegion([FromRoute] string regionName)
         {
-            var deletedRegion = await _regionRepository.DeleteRegionById(regionName);
+            var deletedRegion = await _regionRepository.DeleteRegionByName(regionName);
             if (deletedRegion is null)
                 return NotFound("The region was not found");
             return Ok(deletedRegion);
