@@ -24,6 +24,7 @@ builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 //Custom mappers
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();
+builder.Services.AddScoped<IPlantMapper, PlantMapper>();
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {
