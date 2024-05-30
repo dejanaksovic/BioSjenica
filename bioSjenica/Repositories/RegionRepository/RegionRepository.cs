@@ -3,7 +3,6 @@ using bioSjenica.Data;
 using bioSjenica.DTOs.Regions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace bioSjenica.Repositories.RegionRepository
 {
@@ -63,19 +62,19 @@ namespace bioSjenica.Repositories.RegionRepository
         }
         public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegionPayload, string regionName)
         {
-            Region regionToUpdate = _sqlContext.Regions
+            var regionToUpdate = _sqlContext.Regions
                                     .Include(r => r.Animals)
                                     .FirstOrDefault(r => r.Name == regionName);
 
-            Region updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
+            var updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
             
-            regionToUpdate.Name = updateRegion.Name ?? regionToUpdate.Name;
+            regionToUpdate.Name ??= updateRegion.Name;
             regionToUpdate.Area = updateRegionPayload.Area;
-            regionToUpdate.Villages = updateRegion.Villages ?? regionToUpdate.Villages;
-            regionToUpdate.ProtectionType = updateRegion.ProtectionType ?? regionToUpdate.ProtectionType;
-            regionToUpdate.FeedingGrounds = updateRegion.FeedingGrounds ?? regionToUpdate.FeedingGrounds;
-            regionToUpdate.Plants = updateRegion.Plants ?? regionToUpdate.Plants;
-            regionToUpdate.Animals = updateRegion.Animals ?? regionToUpdate.Animals;
+            regionToUpdate.Villages ??= updateRegion.Villages;
+            regionToUpdate.ProtectionType ??= updateRegion.ProtectionType;
+            regionToUpdate.FeedingGrounds ??= updateRegion.FeedingGrounds;
+            regionToUpdate.Plants ??= updateRegion.Plants;
+            regionToUpdate.Animals ??= updateRegion.Animals;
 
             try
             {

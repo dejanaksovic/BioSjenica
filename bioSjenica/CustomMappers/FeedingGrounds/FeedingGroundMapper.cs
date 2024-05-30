@@ -1,5 +1,6 @@
 using bioSjenica.Data;
 using bioSjenica.DTOs;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,9 +22,8 @@ namespace bioSjenica.CustomMappers {
       if(!(DTO.RegionName is null)) {
         region = await _sqlContext.Regions.FirstOrDefaultAsync(r => r.Name == DTO.RegionName);
         if(region is null) {
-          // Handle not found region
           _logger.LogError("Region not found");
-          throw new NotImplementedException();
+          throw new NotFoundException(region);
         }
       }
       //Check for animals

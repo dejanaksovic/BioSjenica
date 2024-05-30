@@ -1,6 +1,7 @@
 using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.DTOs.Regions;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,10 +51,9 @@ namespace bioSjenica.CustomMappers {
           regions = new List<Region>();
           foreach(var regionName in DTO.RegionNames) {
             var region = await _sqlContext.Regions.FirstOrDefaultAsync(r => r.Name == regionName);
-            //TODO: Handle not found region
             if(region is null) {
               _logger.LogError("Region not found");
-              throw new NotImplementedException();
+              throw new NotFoundException(region);
             }
             regions.Add(region);
           }
@@ -63,10 +63,9 @@ namespace bioSjenica.CustomMappers {
           feedingGrounds = new List<FeedingGround>();
           foreach(var number in DTO.GroundNumbers) {
             var feedingGround = await _sqlContext.FeedingGorunds.FirstOrDefaultAsync(fg => fg.GroundNumber == number);
-            //TODO: Handle not found feeding ground
             if(feedingGround is null) {
               _logger.LogError("Feeding ground not found");
-              throw new NotImplementedException();
+              throw new NotFoundException(feedingGround);
             }
             feedingGrounds.Add(feedingGround);
           }
