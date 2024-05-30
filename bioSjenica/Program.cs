@@ -1,5 +1,6 @@
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
+using bioSjenica.Repositories;
 using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ builder.Services.AddSwaggerGen();
 // Custom services
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
+builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 //Custom mappers
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();

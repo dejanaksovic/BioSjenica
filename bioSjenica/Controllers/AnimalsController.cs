@@ -1,6 +1,5 @@
 ﻿using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.Repositories.AnimalRepository;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bioSjenica.Controllers

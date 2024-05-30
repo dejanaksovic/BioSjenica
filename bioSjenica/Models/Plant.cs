@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bioSjenica.Models
 {
+    // Unique keys
     [Index(nameof(LatinicName), nameof(CommonName), nameof(ImageUrl), IsUnique = true)]
     public class Plant
     {
