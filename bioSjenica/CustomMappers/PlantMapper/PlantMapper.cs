@@ -1,5 +1,6 @@
 using bioSjenica.Data;
 using bioSjenica.DTOs;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,16 +15,15 @@ namespace bioSjenica.CustomMappers {
     }
     public async Task<Plant> CreateToPlant(CreatePlantDTO DTO) {
       // Init setup
-      // Checking and adding regions
       List<Region>? regions = null;
+      // Checking and adding regions
       if(!(DTO.RegionNames is null)) {
         regions = new List<Region>();
         foreach(var name in DTO.RegionNames) {
           var region = await _sqlContex.Regions.FirstOrDefaultAsync(r => r.Name == name);
           if(region is null) {
-            // TODO: handle not found region
             _logger.LogError("Region not found");
-            throw new NotImplementedException();
+            throw (RequestException)new NotFoundException("region");
           }
           regions.Add(region);
         }

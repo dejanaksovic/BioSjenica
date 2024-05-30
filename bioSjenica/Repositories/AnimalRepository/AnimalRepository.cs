@@ -1,8 +1,10 @@
 ﻿using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using bioSjenica.Repositories.RegionRepository;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Repositories.AnimalRepository
@@ -44,9 +46,8 @@ namespace bioSjenica.Repositories.AnimalRepository
                 var animalToDel = _sqlContext.Animals.FirstOrDefault(a => a.LatinicName == latinicOrCommonName || a.CommonName == latinicOrCommonName);
                 if(animalToDel is null )
                 {
-                    //TODO: Handle not found animal
                     _logger.LogError("Not found");
-                    throw new NotImplementedException();
+                    throw (RequestException)new NotFoundException("Animal");
                 }
                 _sqlContext.Remove(animalToDel);
                 await _sqlContext.SaveChangesAsync();
@@ -55,7 +56,7 @@ namespace bioSjenica.Repositories.AnimalRepository
             catch(Exception e)
             {
                 _logger.LogError(e, e.Message);
-                throw new NotImplementedException();
+                throw new NotFoundException("Animal");
             }
         }
 
@@ -91,14 +92,12 @@ namespace bioSjenica.Repositories.AnimalRepository
             {
                 //Get the required animal
                 Animal animalToUpdate = await _sqlContext.Animals
-                .Include(a => a.Regions)
-                .FirstOrDefaultAsync(a => a.LatinicName.ToLower() == latinicOrCommonName.ToLower() || a.CommonName.ToLower() == latinicOrCommonName.ToLower());
-                //Handle not found animal exception
+                                        .Include(a => a.Regions)
+                                        .FirstOrDefaultAsync(a => a.LatinicName.ToLower() == latinicOrCommonName.ToLower() || a.CommonName.ToLower() == latinicOrCommonName.ToLower());
                 if(animalToUpdate is null)
                 {
-                    // TODO: Handle not found animal
                     _logger.LogError("Animal not found");
-                    throw new NotImplementedException();
+                    throw (RequestException)new NotFoundException("Animal");
                 }
                 //Check for regions
                 var updateAnimal = await _animalMapper.CreateToAnimal(updateAnimalPayload);

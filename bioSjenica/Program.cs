@@ -1,5 +1,6 @@
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
+using bioSjenica.Middleware;
 using bioSjenica.Repositories;
 using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
@@ -30,6 +31,9 @@ builder.Services.AddScoped<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IPlantMapper, PlantMapper>();
 builder.Services.AddScoped<IFeedingGroundsMapper, FeedingGroundMapper>();
 
+//Middleware
+builder.Services.AddTransient<GlobalResponseExceptionMiddleware>();
+
 builder.Services.AddDbContext<SqlContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Sql"));
@@ -47,6 +51,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalResponseExceptionMiddleware>();
 
 app.MapControllers();
 

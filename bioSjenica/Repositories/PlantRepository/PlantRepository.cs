@@ -1,7 +1,9 @@
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Repositories {
@@ -34,9 +36,8 @@ namespace bioSjenica.Repositories {
       {
           var plantToDelete = _sqlContext.Plants.FirstOrDefault(p => p.CommonName == latinicOrCommonName || p.LatinicName == latinicOrCommonName);
           if(plantToDelete is null) {
-            // TODO: IMplement plant not found
             _logger.LogError("Plant not found");
-            throw new NotImplementedException();
+            throw (RequestException)new NotFoundException("Plant");
           }
           _sqlContext.Plants.Remove(plantToDelete);
           await _sqlContext.SaveChangesAsync();
@@ -56,6 +57,9 @@ namespace bioSjenica.Repositories {
           var plantToUpdate = await _sqlContext.Plants
                                     .Include(p => p.Regions)
                                     .FirstOrDefaultAsync(p => p.CommonName == latinicOrCommonName || p.LatinicName == latinicOrCommonName);
+          if(plantToUpdate is null) {
+            throw (RequestException)new NotFoundException("Plant");
+          }
           var newPlantInfo = await _plantMapper.CreateToPlant(plantPayload);
           plantToUpdate.CommonName = newPlantInfo.CommonName ?? plantToUpdate.CommonName;
           plantToUpdate.LatinicName = newPlantInfo.LatinicName ?? plantToUpdate.LatinicName;

@@ -1,6 +1,7 @@
 ﻿using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.DTOs.Regions;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,11 +35,10 @@ namespace bioSjenica.CustomMappers
                 foreach (string name in DTO.AnimalsCommonOrLatinicNames)
                 {
                     var animalToAdd = await _sqlContext.Animals.FirstOrDefaultAsync(a => a.CommonName == name || a.LatinicName == name);
-                    //TODO: Handle not found animal exception
                     if (animalToAdd is null)
                     {
                         _logger.LogError("Animal not found");
-                        throw new NotImplementedException();
+                        throw (RequestException)new NotFoundException("Animal");
                     }
                     animals.Add(animalToAdd);
                 }
@@ -54,7 +54,7 @@ namespace bioSjenica.CustomMappers
                     if (plantToAdd is null)
                     {
                         _logger.LogError("Plant not found");
-                        throw new NotImplementedException();
+                        throw (RequestException)new NotFoundException("Plant");
                     }
                     plants.Add(plantToAdd);
                 }
@@ -70,7 +70,7 @@ namespace bioSjenica.CustomMappers
                     if (feedingGroundToAdd is null)
                     {
                         _logger.LogError("Feeding ground not found");
-                        throw new NotImplementedException();
+                        throw (RequestException)new NotFoundException("Feeding ground");
                     }
                     feedingGrounds.Add(feedingGroundToAdd);
                 }

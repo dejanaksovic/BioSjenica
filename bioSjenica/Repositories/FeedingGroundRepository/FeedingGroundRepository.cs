@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs;
+using bioSjenica.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Repositories {
@@ -29,9 +30,8 @@ namespace bioSjenica.Repositories {
         // TODO: Handle database errors
         var feedingGroundToDelete = await _sqlContext.FeedingGorunds.FirstOrDefaultAsync(fg => fg.GroundNumber == feedingGroundNumber);
         if(feedingGroundToDelete is null) {
-          // TODO: Handle not found feeding ground;
           _logger.LogError("Feeding ground not found");
-          throw new NotImplementedException();
+          throw (RequestException)new NotFoundException("Feeding ground");
         }
         _sqlContext.Remove(feedingGroundToDelete);
         await _sqlContext.SaveChangesAsync();
@@ -55,6 +55,9 @@ namespace bioSjenica.Repositories {
                                     .Include(fg => fg.Region)
                                     .Include(fg => fg.Animals)
                                     .FirstOrDefault(fg => fg.GroundNumber == feedingGroundNumber);
+        if(feedingGroundToUpdate is null) {
+          throw (RequestException)new NotFoundException("Feeding ground");
+        }
         var newProps = await _feedingGroundMapper.CreateToFeedingGround(feedingGroundPayload);
         //Update
         feedingGroundToUpdate.GroundNumber = newProps.GroundNumber != 0 ? newProps.GroundNumber : feedingGroundToUpdate.GroundNumber;

@@ -18,12 +18,12 @@ namespace bioSjenica.CustomMappers {
     {
       Region region = null;
       List<Animal> animals = new List<Animal>();
-      //Check for reagion
+      //Check for regions
       if(!(DTO.RegionName is null)) {
         region = await _sqlContext.Regions.FirstOrDefaultAsync(r => r.Name == DTO.RegionName);
         if(region is null) {
           _logger.LogError("Region not found");
-          throw new NotFoundException(region);
+          throw (RequestException)new NotFoundException("Region");
         }
       }
       //Check for animals
@@ -31,9 +31,8 @@ namespace bioSjenica.CustomMappers {
         foreach(var name in DTO.AnimalsLatinicOrCommonName) {
           var animal = await _sqlContext.Animals.FirstOrDefaultAsync(a => a.LatinicName == name || a.CommonName == name);
           if(animal is null) {
-            //Handle not found animal
             _logger.LogError("Animal not found");
-            throw new NotImplementedException();
+            throw (RequestException)new NotFoundException("Animal");
           }
           animals.Add(animal);
         }

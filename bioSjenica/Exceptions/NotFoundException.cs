@@ -1,5 +1,5 @@
 namespace bioSjenica.Exceptions {
   public class NotFoundException : RequestException {
-    public NotFoundException(object objectNotFound):base($"${nameof(objectNotFound)} not found", 404){}
+    public NotFoundException(string ObjectName):base($"{ObjectName} not found", 404){}
   }
 }

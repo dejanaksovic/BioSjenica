@@ -53,7 +53,7 @@ namespace bioSjenica.CustomMappers {
             var region = await _sqlContext.Regions.FirstOrDefaultAsync(r => r.Name == regionName);
             if(region is null) {
               _logger.LogError("Region not found");
-              throw new NotFoundException(region);
+              throw (RequestException) new NotFoundException("Region");
             }
             regions.Add(region);
           }
@@ -65,7 +65,7 @@ namespace bioSjenica.CustomMappers {
             var feedingGround = await _sqlContext.FeedingGorunds.FirstOrDefaultAsync(fg => fg.GroundNumber == number);
             if(feedingGround is null) {
               _logger.LogError("Feeding ground not found");
-              throw new NotFoundException(feedingGround);
+              throw (RequestException)new NotFoundException("Region");
             }
             feedingGrounds.Add(feedingGround);
           }

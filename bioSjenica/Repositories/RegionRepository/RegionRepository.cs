@@ -1,6 +1,7 @@
 ﻿using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs.Regions;
+using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,11 +35,10 @@ namespace bioSjenica.Repositories.RegionRepository
         public async Task<ReadRegionDTO> DeleteRegionByName(string regionName)
         {
             Region regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
-            //TODO: Handle not found exception
             if(regionToDelete is null)
             {
                 _logger.LogError("Region not found");
-                throw new NotImplementedException();
+                throw (RequestException)new NotFoundException("Region");
             }
             _sqlContext.Regions.Remove(regionToDelete);
             await _sqlContext.SaveChangesAsync();
@@ -65,6 +65,10 @@ namespace bioSjenica.Repositories.RegionRepository
             var regionToUpdate = _sqlContext.Regions
                                     .Include(r => r.Animals)
                                     .FirstOrDefault(r => r.Name == regionName);
+
+            if(regionToUpdate is null) {
+                throw (RequestException)new NotFoundException("Region");
+            }
 
             var updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
             
