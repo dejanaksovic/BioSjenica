@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Models
 {
+    [Index(nameof(GroundNumber), IsUnique = true)]
     public class FeedingGround
     {
         public int Id { get; set; }
@@ -16,6 +18,6 @@ namespace bioSjenica.Models
         public DateTime StartWork { get; set; }
         [Required]
         public DateTime EndWork { get; set; }
-        public List<Animal> Animals { get; set; }
+        public List<Animal>? Animals { get; set; }
     }
 }

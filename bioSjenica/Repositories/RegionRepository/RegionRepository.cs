@@ -51,6 +51,8 @@ namespace bioSjenica.Repositories.RegionRepository
         {
             List<Region> regions = await _sqlContext.Regions
                                         .Include(r => r.Animals)
+                                        .Include(r => r.FeedingGrounds)
+                                        .Include(r => r.Plants)
                                         .ToListAsync();
             List<ReadRegionDTO> regionsToReturn = new();
             foreach(Region region in regions)

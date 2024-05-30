@@ -23,10 +23,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
 builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
+builder.Services.AddScoped<IFeedingGroundRepository, FeedingGroundRepository>();
 //Custom mappers
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IPlantMapper, PlantMapper>();
+builder.Services.AddScoped<IFeedingGroundsMapper, FeedingGroundMapper>();
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {

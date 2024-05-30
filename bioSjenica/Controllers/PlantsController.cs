@@ -1,4 +1,3 @@
-using bioSjenica.CustomMappers;
 using bioSjenica.DTOs;
 using bioSjenica.Repositories;
 using Microsoft.AspNetCore.Mvc;

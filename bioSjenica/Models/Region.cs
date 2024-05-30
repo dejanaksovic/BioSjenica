@@ -13,6 +13,7 @@ namespace bioSjenica.Models
         [Required]
         public float Area { get; set; }
         [Required]
+        // Decided on a composite string type[village1, villag2, villag3] instead of not needed village instance, since only the names are tracked
         public string Villages { get; set; }
         public string ProtectionType { get; set; }
         public List<FeedingGround>? FeedingGrounds { get; set; }
