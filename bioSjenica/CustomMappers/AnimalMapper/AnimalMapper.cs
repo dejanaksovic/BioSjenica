@@ -44,11 +44,10 @@ namespace bioSjenica.CustomMappers {
       public async Task<Animal> CreateToAnimal(CreateAnimalDTO DTO)
       {
         //Init setup
-        List<Region> regions = null;
-        List<FeedingGround> feedingGrounds = null;
+        List<Region> regions = new List<Region>();
+        List<FeedingGround> feedingGrounds = new List<FeedingGround>();
         //Check for regions
         if(!(DTO.RegionNames is null)) {
-          regions = new List<Region>();
           foreach(var regionName in DTO.RegionNames) {
             var region = await _sqlContext.Regions.FirstOrDefaultAsync(r => r.Name == regionName);
             if(region is null) {
@@ -60,7 +59,6 @@ namespace bioSjenica.CustomMappers {
         }
         //Check for feeding grounds
         if(!(DTO.GroundNumbers is null)) {
-          feedingGrounds = new List<FeedingGround>();
           foreach(var number in DTO.GroundNumbers) {
             var feedingGround = await _sqlContext.FeedingGorunds.FirstOrDefaultAsync(fg => fg.GroundNumber == number);
             if(feedingGround is null) {
@@ -75,7 +73,7 @@ namespace bioSjenica.CustomMappers {
           LatinicName = DTO.LatinicName,
           CommonName = DTO.CommonName,
           RingNumber = DTO.RingNumber,
-          ImageUrl = DTO.ImageUrl,
+          ImageUrl = $"{DTO.CommonName}.{DTO.Image?.ContentType.Split("/")[1]}",
           Regions = regions,
           FeedingGrounds = feedingGrounds,
         };

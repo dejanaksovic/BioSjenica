@@ -14,7 +14,7 @@ namespace bioSjenica.Controllers
             _animalRepository = animalRepository;
         }
         [HttpPost]
-        public async Task<ActionResult<CreateAnimalDTO>> Create([FromBody]CreateAnimalDTO animal)
+        public async Task<ActionResult<CreateAnimalDTO>> Create([FromForm]CreateAnimalDTO animal)
         {
             try
             {
@@ -43,15 +43,8 @@ namespace bioSjenica.Controllers
         [Route("{latinicOrCommonName}")]
         public async Task<ActionResult<CreateAnimalDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody] CreateAnimalDTO updateRequest)
         {
-            try
-            {
-                var updatedAnimal = await _animalRepository.Update(latinicOrCommonName, updateRequest);
-                return Ok(updatedAnimal);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            var updatedAnimal = await _animalRepository.Update(latinicOrCommonName, updateRequest);
+            return Ok(updatedAnimal);
         }
         [HttpDelete]
         [Route("{latinicOrCommonName}")]
