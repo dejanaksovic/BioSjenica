@@ -15,9 +15,9 @@ namespace bioSjenica.Models
         public int RegionId { get; set; }
         public Region Region { get; set; }
         [Required]
-        public DateTime StartWork { get; set; }
+        public int StartWork { get; set; }
         [Required]
-        public DateTime EndWork { get; set; }
+        public int EndWork { get; set; }
         public List<Animal>? Animals { get; set; }
     }
 }

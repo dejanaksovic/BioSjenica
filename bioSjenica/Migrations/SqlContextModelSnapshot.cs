@@ -107,8 +107,8 @@ namespace bioSjenica.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("EndWork")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("EndWork")
+                        .HasColumnType("int");
 
                     b.Property<int>("GroundNumber")
                         .HasColumnType("int");
@@ -116,10 +116,13 @@ namespace bioSjenica.Migrations
                     b.Property<int>("RegionId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("StartWork")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("StartWork")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroundNumber")
+                        .IsUnique();
 
                     b.HasIndex("RegionId");
 
@@ -191,7 +194,7 @@ namespace bioSjenica.Migrations
                     b.ToTable("Regions");
                 });
 
-            modelBuilder.Entity("bioSjenica.Models.Worker", b =>
+            modelBuilder.Entity("bioSjenica.Models.User", b =>
                 {
                     b.Property<string>("SSN")
                         .HasColumnType("nvarchar(450)");
@@ -208,8 +211,12 @@ namespace bioSjenica.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("PayGrade")
+                    b.Property<float?>("PayGrade")
                         .HasColumnType("real");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SSN");
 

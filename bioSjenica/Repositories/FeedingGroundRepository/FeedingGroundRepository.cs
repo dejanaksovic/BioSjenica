@@ -38,11 +38,17 @@ namespace bioSjenica.Repositories {
 
         return await _feedingGroundMapper.FeedingGroundToRead(feedingGroundToDelete);
       }
-      public async Task<List<ReadFeedingGroundDTO>> Get()
+      public async Task<List<ReadFeedingGroundDTO>> Get(int? month)
       {
         // TODO: Handle database errors
         List<ReadFeedingGroundDTO> feedingGroundsToReturn = new List<ReadFeedingGroundDTO>();
         var feedingGrounds = await _sqlContext.FeedingGorunds.ToListAsync();
+        if(!(month is null) && month != 0) {
+          feedingGrounds = feedingGrounds.Where(fg => fg.StartWork >= month && fg.EndWork <= month).ToList();
+          if(feedingGrounds.Count() == 0) {
+            throw new NotFoundException("Feeding ground");
+          }
+        }
         foreach(var feedingGround in feedingGrounds) {
           feedingGroundsToReturn.Add(await _feedingGroundMapper.FeedingGroundToRead(feedingGround));
         }
@@ -62,8 +68,8 @@ namespace bioSjenica.Repositories {
         //Update
         feedingGroundToUpdate.GroundNumber = newProps.GroundNumber != 0 ? newProps.GroundNumber : feedingGroundToUpdate.GroundNumber;
         feedingGroundToUpdate.Region ??= newProps.Region;
-        feedingGroundToUpdate.StartWork = (newProps.StartWork != DateTime.MinValue) ? newProps.StartWork : feedingGroundToUpdate.StartWork;
-        feedingGroundToUpdate.EndWork = (newProps.EndWork != DateTime.MinValue) ? newProps.EndWork : feedingGroundToUpdate.EndWork;
+        feedingGroundToUpdate.StartWork = (newProps.StartWork != 0) ? newProps.StartWork : feedingGroundToUpdate.StartWork;
+        feedingGroundToUpdate.EndWork = (newProps.EndWork != 0) ? newProps.EndWork : feedingGroundToUpdate.EndWork;
         feedingGroundToUpdate.Animals = (newProps.Animals != null) ? newProps.Animals : feedingGroundToUpdate.Animals;
 
         await _sqlContext.SaveChangesAsync();

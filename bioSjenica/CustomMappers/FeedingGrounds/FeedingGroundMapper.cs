@@ -43,8 +43,8 @@ namespace bioSjenica.CustomMappers {
         GroundNumber = DTO.GroundNumber ?? 0,
         Region = region,
         Animals = animals,
-        StartWork = DTO.StartWork ?? new DateTime(),
-        EndWork = DTO.EndWork ?? new DateTime(),
+        StartWork = (int)DTO.StartWork,
+        EndWork = (int)DTO.EndWork,
         RegionId = region.Id,
       };
     }

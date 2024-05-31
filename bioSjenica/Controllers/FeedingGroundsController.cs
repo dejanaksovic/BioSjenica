@@ -16,8 +16,8 @@ namespace bioSjenica.Controllers {
       return Ok(await _feedingGroundsRepository.Create(feedingGroundsPayload));
     }
     [HttpGet]
-    public async Task<ActionResult<ReadFeedingGroundDTO>> GetFeedingGrounds() {
-      return Ok(await _feedingGroundsRepository.Get());
+    public async Task<ActionResult<ReadFeedingGroundDTO>> GetFeedingGrounds([FromQuery] int month) {
+      return Ok(await _feedingGroundsRepository.Get(month));
     }
     [HttpPatch]
     [Route("{groundsNumber}")]
