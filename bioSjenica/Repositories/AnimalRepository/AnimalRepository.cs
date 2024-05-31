@@ -60,15 +60,19 @@ namespace bioSjenica.Repositories.AnimalRepository
             }
         }
 
-        public async Task<List<ReadAnimalDTO>> Get()
+        public async Task<List<ReadAnimalDTO>> Get(string? regionName)
         {
-            int flagWith = 1;
             try
             {
                 //Get info
                 var animals = await _sqlContext.Animals
                     .Include(a => a.Regions)
                     .ToListAsync();
+
+                //Check for region query
+                if(!(regionName is null)) {
+                    animals = animals.Where(a => a.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToList();
+                }
 
                 //Map dtos
                 List<ReadAnimalDTO> animalInfo = new();

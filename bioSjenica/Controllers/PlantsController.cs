@@ -18,8 +18,8 @@ namespace bioSjenica.Controllers {
       return Ok(await _plantRepository.Create(plantPayload));
     }
     [HttpGet]
-    public async Task<ActionResult<List<ReadPlantDTO>>> GetPlants() {
-      return Ok(await _plantRepository.Get());
+    public async Task<ActionResult<List<ReadPlantDTO>>> GetPlants([FromQuery] string regionName) {
+      return Ok(await _plantRepository.Get(regionName));
     }
     [HttpPatch]
     [Route("{latinicOrCommonName}")]

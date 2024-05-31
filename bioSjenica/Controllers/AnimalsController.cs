@@ -27,11 +27,11 @@ namespace bioSjenica.Controllers
             }
         }
         [HttpGet]
-        public async Task<ActionResult<List<CreateAnimalDTO>>> Read()
+        public async Task<ActionResult<List<CreateAnimalDTO>>> Get([FromQuery]string? regionName)
         {
             try
             {
-                var animals = await _animalRepository.Get();
+                var animals = await _animalRepository.Get(regionName);
                 return Ok(animals);
             }
             catch(Exception e)

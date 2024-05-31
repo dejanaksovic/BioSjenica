@@ -43,10 +43,18 @@ namespace bioSjenica.Repositories {
           await _sqlContext.SaveChangesAsync();
           return await _plantMapper.PlantToRead(plantToDelete);
       }
-      public async Task<List<ReadPlantDTO>> Get()
+      public async Task<List<ReadPlantDTO>> Get(string? regionName)
       {
           List<ReadPlantDTO> plantDtosToReturn = new List<ReadPlantDTO>();
-          var plantsToReturn = await _sqlContext.Plants.ToListAsync();
+          var plantsToReturn = await _sqlContext.Plants
+                               .Include(p => p.Regions)
+                               .ToListAsync();
+          _logger.LogInformation($"We should be in with region name: {regionName}");
+          if(!(regionName is null)) {
+            plantsToReturn = plantsToReturn.Where(p => p.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToList();
+            //Handle not found plants on region
+            throw new NotFoundException("Region");
+          }
           foreach(var plant in plantsToReturn) {
             plantDtosToReturn.Add(await _plantMapper.PlantToRead(plant));
           }

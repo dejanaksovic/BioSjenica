@@ -13,6 +13,6 @@ namespace bioSjenica.Data
         public DbSet<Animal> Animals { get; set; }
         public DbSet<FeedingGround> FeedingGorunds{ get; set; }
         public DbSet<Plant> Plants { get; set; }
-        public DbSet<Worker> Workers{ get; set; }
+        public DbSet<User> Workers{ get; set; }
     }
 }
