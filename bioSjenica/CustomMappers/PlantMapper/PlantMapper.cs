@@ -2,6 +2,7 @@ using bioSjenica.Data;
 using bioSjenica.DTOs;
 using bioSjenica.Exceptions;
 using bioSjenica.Models;
+using bioSjenica.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.CustomMappers {
@@ -32,7 +33,7 @@ namespace bioSjenica.CustomMappers {
       return new Plant() {
         CommonName = DTO.CommonName,
         LatinicName = DTO.LatinicName,
-        ImageUrl = DTO.ImageUrl,
+        ImageUrl = "",
         SpecialDecision = DTO.SpecialDecision,
         SpecialTime = DTO.SpecialTime,
         Regions = regions,

@@ -1,8 +1,10 @@
+using System.Security.Cryptography.X509Certificates;
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs;
 using bioSjenica.Exceptions;
 using bioSjenica.Models;
+using bioSjenica.Utilities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +24,11 @@ namespace bioSjenica.Repositories {
       {
         var plantToAdd = await _plantMapper.CreateToPlant(plantPayload);
         try {
+          //Handle image saving
+          if(!(plantPayload.Image is null) && plantPayload.Image.Length > 0) {
+            var res = await Image.Create("plants", plantPayload.CommonName, plantPayload.Image);
+          plantToAdd.ImageUrl = res.StartsWith("success") ? res.Split("//")[1] : "no-image.jpg";
+          }
           _sqlContext.Plants.Add(plantToAdd);
           await _sqlContext.SaveChangesAsync();
           return await _plantMapper.PlantToRead(plantToAdd);
@@ -39,6 +46,8 @@ namespace bioSjenica.Repositories {
             _logger.LogError("Plant not found");
             throw (RequestException)new NotFoundException("Plant");
           }
+          //Handle image removal
+          Image.Delete(plantToDelete.ImageUrl);
           _sqlContext.Plants.Remove(plantToDelete);
           await _sqlContext.SaveChangesAsync();
           return await _plantMapper.PlantToRead(plantToDelete);
@@ -68,7 +77,17 @@ namespace bioSjenica.Repositories {
           if(plantToUpdate is null) {
             throw (RequestException)new NotFoundException("Plant");
           }
+          
           var newPlantInfo = await _plantMapper.CreateToPlant(plantPayload);
+          //Check for image update 
+          if(!(plantPayload.Image is null) && plantPayload.Image.Length > 0) {
+            Image.Delete(plantToUpdate.ImageUrl);
+            Image.Create("plants", plantPayload.CommonName, plantPayload.Image);
+          }
+          //Chck only for the name change
+          if(plantToUpdate.ImageUrl != newPlantInfo.ImageUrl) {
+            Image.Move(plantToUpdate.ImageUrl, newPlantInfo.ImageUrl);
+          }
           plantToUpdate.CommonName = newPlantInfo.CommonName ?? plantToUpdate.CommonName;
           plantToUpdate.LatinicName = newPlantInfo.LatinicName ?? plantToUpdate.LatinicName;
           plantToUpdate.Regions = newPlantInfo.Regions ?? plantToUpdate.Regions;

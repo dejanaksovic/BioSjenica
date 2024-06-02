@@ -14,7 +14,7 @@ namespace bioSjenica.Controllers {
       _logger = logger;
     }
     [HttpPost]
-    public async Task<ActionResult<ReadPlantDTO>> CreatePlant([FromBody] CreatePlantDTO plantPayload) {
+    public async Task<ActionResult<ReadPlantDTO>> CreatePlant([FromForm] CreatePlantDTO plantPayload) {
       return Ok(await _plantRepository.Create(plantPayload));
     }
     [HttpGet]

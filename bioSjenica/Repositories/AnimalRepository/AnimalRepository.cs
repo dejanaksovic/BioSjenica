@@ -29,16 +29,15 @@ namespace bioSjenica.Repositories.AnimalRepository
                 Animal animalToAdd = await _animalMapper.CreateToAnimal(newAnimal);
                 //Saving the image
                 if(!(newAnimal.Image is null) && newAnimal.Image.Length > 0) {
-                    if(!newAnimal.Image.ContentType.StartsWith("image")) {
-                        throw new NotFoundException("image");
+                    var res = await Image.Create("animals", animalToAdd.CommonName, newAnimal.Image);
+                    //TODO: For the love of god implement a proper error handler
+                    if(res.StartsWith("fail")) {
+                        throw (RequestException)new NotFoundException($"{res.Split("//")[1]}");
                     }
-                    //Image extention
-                    var imageContentType = newAnimal.Image.ContentType.Split("/")[1];
-                    var path = BasePath.Get();
-                    _logger.LogInformation($"Saving to ${path}");
-                    using (FileStream fileStream = File.Create($"{path}/images/{newAnimal.CommonName}.{imageContentType}")) {
-                        await newAnimal.Image.CopyToAsync(fileStream);
-                    }
+                    animalToAdd.ImageUrl = res.Split("//")[1];
+                }
+                else {
+                    animalToAdd.ImageUrl = "images/no-image.png";
                 }
 
                 //Add region to database and save
@@ -65,10 +64,8 @@ namespace bioSjenica.Repositories.AnimalRepository
                     throw (RequestException)new NotFoundException("Animal");
                 }
                 //Remove an image
-                var path = BasePath.Get();
-                if(File.Exists($"{path}/images/{animalToDel.ImageUrl}")) {
-                    File.Delete($"{path}/images/{animalToDel.ImageUrl}");
-                }
+                Image.Delete(animalToDel.ImageUrl);
+                //Delete an animal
                 _sqlContext.Remove(animalToDel);
                 await _sqlContext.SaveChangesAsync();
                 return await _animalMapper.AnimalToRead(animalToDel);
@@ -124,23 +121,19 @@ namespace bioSjenica.Repositories.AnimalRepository
             //Check for regions
             var updateAnimal = await _animalMapper.CreateToAnimal(updateAnimalPayload);
             //Check if picture needs to be updated
-            var path = BasePath.Get();
-            var contentType = updateAnimalPayload.Image?.ContentType.Split("/")[1] ?? animalToUpdate.ImageUrl.Split(".")[1]; //.jpg, .png...
             if(updateAnimalPayload.Image != null) 
             {
-                if(!updateAnimalPayload.Image.ContentType.StartsWith("image")) {
-                    throw (RequestException)new NotFoundException("image");
-                }
-                using (FileStream stream = File.Create($"{updateAnimalPayload.CommonName ?? updateAnimal.CommonName}.{contentType}")) {
-                    await updateAnimalPayload.Image.CopyToAsync(stream);
-                }
+                Image.Delete(animalToUpdate.ImageUrl);
+                Image.Create("animals", updateAnimalPayload.CommonName, updateAnimalPayload.Image);
             }
+            string? newUrl = null;
             //Update picture name if name changed
-            if(File.Exists($"{path}/images/{animalToUpdate.ImageUrl}")) {
-                File.Move($"{path}/images/{animalToUpdate.ImageUrl}", $"{path}/images/{updateAnimalPayload.CommonName}.{contentType}");
+            if(!(updateAnimalPayload.CommonName is null)) {
+                newUrl = Image.Move(animalToUpdate.ImageUrl, updateAnimal.ImageUrl);
             }
+
             //Update existing animal
-            animalToUpdate.ImageUrl = (animalToUpdate.CommonName == updateAnimalPayload.CommonName) ? animalToUpdate.ImageUrl : $"/images/{updateAnimalPayload.CommonName}.{contentType}";
+            animalToUpdate.ImageUrl = newUrl ?? animalToUpdate.ImageUrl;
             animalToUpdate.RingNumber = updateAnimal.RingNumber ?? animalToUpdate.RingNumber;
             animalToUpdate.LatinicName = updateAnimal.LatinicName ?? animalToUpdate.LatinicName;
             animalToUpdate.CommonName = updateAnimal.CommonName ?? animalToUpdate.CommonName;
