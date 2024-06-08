@@ -488,4 +488,5 @@ bioSjenica/images/animals/*
 bioSjenica/images/platns/*
 
 # Ignore the development settings
-appsettings.Development.json
+bioSjenica/appSettings.json
+bioSjenica/appsettings.Development.json

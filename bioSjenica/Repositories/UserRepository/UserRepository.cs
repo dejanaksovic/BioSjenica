@@ -30,7 +30,6 @@ namespace bioSjenica.Repositories {
           await _sqlContext.SaveChangesAsync();
           return userToDelete;     
         }
-
         public async Task<List<User>> Get()
         {
             return await _sqlContext.Users.ToListAsync();

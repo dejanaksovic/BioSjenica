@@ -1,9 +1,11 @@
 using bioSjenica.Models;
 using bioSjenica.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bioSjenica.Controllers {
   [Controller]
+  [Authorize(Roles = "Admin")]
   [Route("/api/[controller]")]
   public class UsersController:ControllerBase {
     private readonly IUserRepository _userRepository;
