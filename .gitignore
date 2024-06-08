@@ -482,3 +482,10 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Start from scrath every time
+bioSjenica/images/animals/*
+bioSjenica/images/platns/*
+
+# Ignore the development settings
+appsettings.Development.json
