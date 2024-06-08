@@ -1,13 +1,11 @@
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
-using bioSjenica.DTOs;
 using bioSjenica.Middleware;
 using bioSjenica.Repositories;
 using bioSjenica.Repositories.AnimalRepository;
 using bioSjenica.Repositories.RegionRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -42,6 +40,7 @@ builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();
 builder.Services.AddScoped<IPlantMapper, PlantMapper>();
 builder.Services.AddScoped<IFeedingGroundsMapper, FeedingGroundMapper>();
+builder.Services.AddScoped<IUserMapper, UserMapper>();
 
 //JWT
 builder.Services.AddAuthentication(c => {

@@ -6,15 +6,18 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace bioSjenica.Utilities {
   public static class AuthHelper {
-    public static string GenerateJWTToken(AuthDTO user) {
+    public static string GenerateJWTToken(ReadUserDTO user) {
       var claims = new List<Claim> {
-        new Claim(ClaimTypes.NameIdentifier, user.username ?? ""),
-        new Claim(ClaimTypes.Name, user.username),
+        new Claim(ClaimTypes.NameIdentifier, user.SSN),
+        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+        new Claim(ClaimTypes.Role, user.Role)
       };
       var jwtToken = new JwtSecurityToken(
+        issuer: "api/biosjenica",
+        audience: "biosjenica",
         claims: claims,
         notBefore: DateTime.UtcNow,
-        expires: DateTime.UtcNow.AddDays(1),
+        expires: DateTime.UtcNow.AddMinutes(10),
         signingCredentials: new SigningCredentials(
           new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes("wIquAT4ASbLxhax8lhQTWJn8kUDgRz7q")

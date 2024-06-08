@@ -200,10 +200,13 @@ namespace bioSjenica.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FistName")
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -211,7 +214,10 @@ namespace bioSjenica.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("PayGrade")
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("PayGrade")
                         .HasColumnType("real");
 
                     b.Property<string>("Role")
@@ -219,6 +225,12 @@ namespace bioSjenica.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SSN");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("SSN")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

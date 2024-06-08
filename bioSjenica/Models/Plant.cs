@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace bioSjenica.Models
 {
     // Unique keys
-    [Index(nameof(LatinicName), nameof(CommonName), nameof(ImageUrl), IsUnique = true)]
+    [Index(nameof(LatinicName), IsUnique = true)]
+    [Index(nameof(CommonName), IsUnique = true)]
+    [Index(nameof(ImageUrl), IsUnique = true)]
     public class Plant
     {
         public int Id { get; set; }

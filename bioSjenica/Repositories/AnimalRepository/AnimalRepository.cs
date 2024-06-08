@@ -14,7 +14,7 @@ namespace bioSjenica.Repositories.AnimalRepository
     {
         private readonly SqlContext _sqlContext;
         private readonly ILogger<AnimalRepository> _logger;
-        private readonly IAnimalMapper _animalMapper;
+        private readonly IAnimalMapper  _animalMapper;
         public AnimalRepository(SqlContext sqlContext, ILogger<AnimalRepository> logger, IAnimalMapper animalMapper)
         {
             _sqlContext = sqlContext;
@@ -92,7 +92,7 @@ namespace bioSjenica.Repositories.AnimalRepository
                 }
 
                 //Map dtos
-                List<ReadAnimalDTO> animalInfo = new();
+                List<ReadAnimalDTO> animalInfo = [];
                 foreach(var animal in animals)
                 {
                     animalInfo.Add(await _animalMapper.AnimalToRead(animal));

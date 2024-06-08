@@ -1,5 +1,7 @@
 ﻿using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.Repositories.AnimalRepository;
+using bioSjenica.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bioSjenica.Controllers
@@ -14,6 +16,7 @@ namespace bioSjenica.Controllers
             _animalRepository = animalRepository;
         }
         [HttpPost]
+        [Authorize(Roles = $"{Roles.Worker}")]
         public async Task<ActionResult<CreateAnimalDTO>> Create([FromForm]CreateAnimalDTO animal)
         {
             try
@@ -40,6 +43,7 @@ namespace bioSjenica.Controllers
             }
         }
         [HttpPatch]
+        [Authorize(Roles = $"{Roles.Worker}")]
         [Route("{latinicOrCommonName}")]
         public async Task<ActionResult<CreateAnimalDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody] CreateAnimalDTO updateRequest)
         {
@@ -47,6 +51,7 @@ namespace bioSjenica.Controllers
             return Ok(updatedAnimal);
         }
         [HttpDelete]
+        [Authorize(Roles = $"{Roles.Worker}")]
         [Route("{latinicOrCommonName}")]
         public async Task<ActionResult<CreateAnimalDTO>> Delete([FromRoute] string latinicOrCommonName)
         {

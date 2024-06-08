@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace bioSjenica.Migrations
 {
     /// <inheritdoc />
-    public partial class HadToReset : Migration
+    public partial class UpdatedUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,19 +61,21 @@ namespace bioSjenica.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Workers",
+                name: "Users",
                 columns: table => new
                 {
                     SSN = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FistName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PayGrade = table.Column<float>(type: "real", nullable: true),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PayGrade = table.Column<float>(type: "real", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Workers", x => x.SSN);
+                    table.PrimaryKey("PK_Users", x => x.SSN);
                 });
 
             migrationBuilder.CreateTable(
@@ -213,6 +215,12 @@ namespace bioSjenica.Migrations
                 table: "Regions",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_SSN_Email",
+                table: "Users",
+                columns: new[] { "SSN", "Email" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -228,7 +236,7 @@ namespace bioSjenica.Migrations
                 name: "PlantRegion");
 
             migrationBuilder.DropTable(
-                name: "Workers");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "FeedingGorunds");

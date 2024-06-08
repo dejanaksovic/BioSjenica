@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Models
 {
-    [Index(nameof(RingNumber), nameof(LatinicName), nameof(CommonName), IsUnique = true)]
+    [Index(nameof(RingNumber), IsUnique = true)]
+    [Index(nameof(LatinicName), IsUnique = true)]
+    [Index(nameof(CommonName), IsUnique = true)]
     public class Animal
     {
         public int Id { get; set; }

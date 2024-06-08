@@ -1,5 +1,7 @@
 using bioSjenica.DTOs;
 using bioSjenica.Repositories;
+using bioSjenica.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bioSjenica.Controllers {
@@ -14,6 +16,7 @@ namespace bioSjenica.Controllers {
       _logger = logger;
     }
     [HttpPost]
+    [Authorize(Roles = $"{Roles.Worker}")]
     public async Task<ActionResult<ReadPlantDTO>> CreatePlant([FromForm] CreatePlantDTO plantPayload) {
       return Ok(await _plantRepository.Create(plantPayload));
     }
@@ -22,11 +25,13 @@ namespace bioSjenica.Controllers {
       return Ok(await _plantRepository.Get(regionName));
     }
     [HttpPatch]
+    [Authorize(Roles = $"{Roles.Worker}")]
     [Route("{latinicOrCommonName}")]
     public async Task<ActionResult<ReadPlantDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody]CreatePlantDTO plantPayload) {
       return Ok(await _plantRepository.Update(latinicOrCommonName, plantPayload));
     }
     [HttpDelete]
+    [Authorize(Roles = $"{Roles.Worker}")]
     [Route("{latinicOrCommonName}")]
     public async Task<ActionResult<ReadPlantDTO>> Delete([FromRoute] string latinicOrCommonName) {
       return Ok(await _plantRepository.Delete(latinicOrCommonName));

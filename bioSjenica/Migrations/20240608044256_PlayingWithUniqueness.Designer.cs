@@ -12,8 +12,8 @@ using bioSjenica.Data;
 namespace bioSjenica.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    [Migration("20240531113913_HadToReset")]
-    partial class HadToReset
+    [Migration("20240608044256_PlayingWithUniqueness")]
+    partial class PlayingWithUniqueness
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,10 +203,13 @@ namespace bioSjenica.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FistName")
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -214,7 +217,10 @@ namespace bioSjenica.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("PayGrade")
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("PayGrade")
                         .HasColumnType("real");
 
                     b.Property<string>("Role")
@@ -223,7 +229,13 @@ namespace bioSjenica.Migrations
 
                     b.HasKey("SSN");
 
-                    b.ToTable("Workers");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("SSN")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("AnimalFeedingGround", b =>
