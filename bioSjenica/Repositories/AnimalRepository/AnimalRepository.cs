@@ -27,6 +27,7 @@ namespace bioSjenica.Repositories.AnimalRepository
             try
             {
                 Animal animalToAdd = await _animalMapper.CreateToAnimal(newAnimal);
+                _logger.LogWarning($"{newAnimal.CommonName}, {newAnimal.LatinicName}, {newAnimal.RingNumber}");
                 //Saving the image
                 if(!(newAnimal.Image is null) && newAnimal.Image.Length > 0) {
                     var res = await Image.Create("animals", animalToAdd.CommonName, newAnimal.Image);

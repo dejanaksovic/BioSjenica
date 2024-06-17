@@ -27,7 +27,7 @@ namespace bioSjenica.Controllers {
     [HttpPatch]
     [Authorize(Roles = $"{Roles.Worker}")]
     [Route("{latinicOrCommonName}")]
-    public async Task<ActionResult<ReadPlantDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody]CreatePlantDTO plantPayload) {
+    public async Task<ActionResult<ReadPlantDTO>> Update([FromRoute] string latinicOrCommonName, [FromForm]CreatePlantDTO plantPayload) {
       return Ok(await _plantRepository.Update(latinicOrCommonName, plantPayload));
     }
     [HttpDelete]
