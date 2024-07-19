@@ -61,7 +61,7 @@ builder.Services.AddAuthentication(opt => {
     opt.Events = new JwtBearerEvents{
         OnMessageReceived = ctx => {
             ctx.Request.Cookies.TryGetValue("accessToken", out var AT);
-            if(!String.IsNullOrEmpty(AT)) {
+            if(!(String.IsNullOrEmpty(AT))) {
                 ctx.Token = AT;
             }
         return Task.CompletedTask;

@@ -1,4 +1,6 @@
 using System.Diagnostics.Tracing;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs;
@@ -63,6 +65,63 @@ namespace bioSjenica.Controllers {
       });
 
       return Ok(accessToken);
-    }  
+    }
+
+    [HttpPost]
+    [Route("refresh")]
+    public async Task<ActionResult<string>> GetNewAccessToken() {
+      Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
+
+      if(refreshToken is null) {
+        throw new NotImplementedException();
+      }
+
+      //Decode the information
+      var handler = new JwtSecurityTokenHandler();
+      JwtSecurityToken token;
+      try {
+        token = handler.ReadJwtToken(refreshToken);
+      }
+      catch(Exception e) {
+        throw new NotImplementedException();
+      }
+      
+      Claim userEmail = token.Claims.Where(claim => claim.Type == ClaimTypes.Email).FirstOrDefault();
+      if(userEmail is null)
+        throw new NotImplementedException();
+      var user = _sqlContext.Users.Where(u => u.Email == userEmail.Value).FirstOrDefault();
+
+      if(user is null)
+        throw new NotImplementedException();
+
+      if(String.IsNullOrEmpty(user.RefreshToken))
+        throw new NotImplementedException();
+
+      // Send new token
+      var newToken = _authRepo.GetAccessToken(user); 
+      
+      return Ok(newToken);
+    }
+  
+    [HttpPost]
+    [Route("logout")]
+    [Authorize]
+    public async Task<ActionResult<bool>> LogOut() {
+      string? authorization = Request.Headers.Authorization;
+      string? tokenString = authorization.Split(" ")[1];
+
+      var handler = new JwtSecurityTokenHandler();
+
+      JwtSecurityToken token = handler.ReadJwtToken(tokenString);
+
+      Claim userEmail = token.Claims.Where(claim => claim.Type == ClaimTypes.Email).FirstOrDefault();
+
+      if(userEmail is null)
+        throw new NotImplementedException();
+
+      var user = _sqlContext.Users.FirstOrDefault(u => u.Email == userEmail.Value);
+
+      return Ok();
+    }
   }
 }

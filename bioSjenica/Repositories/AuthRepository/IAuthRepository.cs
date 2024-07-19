@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using bioSjenica.Models;
 
 public interface IAuthRepository {

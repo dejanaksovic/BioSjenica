@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using bioSjenica.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 
 public class AuthRepository : IAuthRepository
@@ -25,7 +26,8 @@ public class AuthRepository : IAuthRepository
         // Claims
         List<Claim> claims = new() {
           new Claim(ClaimTypes.Name, $"{user.FirstName} ${user.LastName}"),
-          new Claim(ClaimTypes.Role, user.Role)
+          new Claim(ClaimTypes.Role, user.Role),
+          new Claim(ClaimTypes.Email, user.Email)
         };
 
         // Token option
@@ -53,7 +55,8 @@ public class AuthRepository : IAuthRepository
         // Claims
         List<Claim> claims = new() {
           new Claim(ClaimTypes.Name, $"{user.FirstName} ${user.LastName}"),
-          new Claim(ClaimTypes.Role, user.Role)
+          new Claim(ClaimTypes.Role, user.Role),
+          new Claim(ClaimTypes.Email, user.Email)
         };
 
         // Token option
