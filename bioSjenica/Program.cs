@@ -35,6 +35,7 @@ builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IFeedingGroundRepository, FeedingGroundRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 //Custom mappers
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();
@@ -43,26 +44,35 @@ builder.Services.AddScoped<IFeedingGroundsMapper, FeedingGroundMapper>();
 builder.Services.AddScoped<IUserMapper, UserMapper>();
 
 //JWT
-builder.Services.AddAuthentication(c => {
-    c.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    c.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x => {
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = false;
-    x.TokenValidationParameters = new TokenValidationParameters {
+var jwtSettings = builder.Configuration.GetSection("JWT");
+builder.Services.AddAuthentication(opt => {
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(opt => {
+    opt.TokenValidationParameters = new TokenValidationParameters{
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "123")
-        ),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("Secret").Value))
+    };
+    opt.Events = new JwtBearerEvents{
+        OnMessageReceived = ctx => {
+            ctx.Request.Cookies.TryGetValue("accessToken", out var AT);
+            if(!String.IsNullOrEmpty(AT)) {
+                ctx.Token = AT;
+            }
+        return Task.CompletedTask;
+        }
     };
 });
 
 //Middleware
 builder.Services.AddTransient<GlobalResponseExceptionMiddleware>();
+
+
 
 builder.Services.AddDbContext<SqlContext>(options =>
 {
@@ -82,6 +92,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<GlobalResponseExceptionMiddleware>();
