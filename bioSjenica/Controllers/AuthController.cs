@@ -25,7 +25,7 @@ namespace bioSjenica.Controllers {
         throw new NotImplementedException();
       }
 
-      var token = AuthHelper.GenerateJWTToken(await _userMapper.UserToRead(user));
+      var token = AuthHelper.GenerateJWTToken(_userMapper.UserToRead(user));
 
       return Ok(token);
     }  
