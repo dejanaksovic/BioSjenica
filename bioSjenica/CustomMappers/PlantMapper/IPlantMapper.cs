@@ -4,7 +4,8 @@ using bioSjenica.Models;
 namespace bioSjenica.CustomMappers {
   public interface IPlantMapper {
     public Task<Plant> CreateToPlant(CreatePlantDTO DTO);
-    public Task<ReadPlantDTO> PlantToRead(Plant plant);
+    public ReadPlantDTO PlantToRead(Plant plant);
+    public List<ReadPlantDTO> PlantToReadList(List<Plant> plants);
   }
 
 }

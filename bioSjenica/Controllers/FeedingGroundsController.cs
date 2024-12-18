@@ -13,24 +13,28 @@ namespace bioSjenica.Controllers {
     {
       _feedingGroundsRepository = feedingGroundRepository;
     }
+
     [HttpPost]
-    [Authorize(Roles = $"{Roles.Worker}")]
+    // [Authorize(Roles = $"{Roles.Worker}")]
     public async Task<ActionResult<ReadFeedingGroundDTO>> CreateFeedingGround([FromBody] CreateFeedingGroundDTO feedingGroundsPayload) {
       return Ok(await _feedingGroundsRepository.Create(feedingGroundsPayload));
     }
+
     [HttpGet]
     public async Task<ActionResult<ReadFeedingGroundDTO>> GetFeedingGrounds([FromQuery] int month) {
       return Ok(await _feedingGroundsRepository.Get(month));
     }
+
     [HttpPatch]
-    [Authorize(Roles = $"{Roles.Worker}")]
+    // [Authorize(Roles = $"{Roles.Worker}")]
     [Route("{groundsNumber}")]
     public async Task<ActionResult<ReadFeedingGroundDTO>> UpdateFeeingGround([FromBody] CreateFeedingGroundDTO feedingGroundPayload, [FromRoute] int groundsNumber) {
       return Ok(await _feedingGroundsRepository.Update(feedingGroundPayload, groundsNumber));
     }
+
     [HttpDelete]
     [Authorize(Roles = $"{Roles.Worker}")]
-    [Route("{groundsNumber}")]
+    // [Route("{groundsNumber}")]
     public async Task<ActionResult<ReadFeedingGroundDTO>> DeleteFeedingGround([FromRoute] int groundsNumber) {
       return Ok(await _feedingGroundsRepository.Delete(groundsNumber));
     }

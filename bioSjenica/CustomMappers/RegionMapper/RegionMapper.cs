@@ -87,13 +87,13 @@ namespace bioSjenica.CustomMappers
                 FeedingGrounds = feedingGrounds,
             };
         }
-        public async Task<ReadRegionDTO> RegionToRead(Region region)
+        public ReadRegionDTO RegionToRead(Region region)
         {
             List<ReadAnimalDTO> animalDTOs = new List<ReadAnimalDTO>();
 
             if(!(region.Animals is null)) {
                 foreach(var animal in region.Animals) {
-                    animalDTOs.Add(await _animalMapper.AnimalToRead(animal));
+                    animalDTOs.Add(_animalMapper.AnimalToRead(animal));
                 } 
             }
 
@@ -107,6 +107,16 @@ namespace bioSjenica.CustomMappers
                 Animals = animalDTOs.Count() == 0 ? null : animalDTOs,
                 FeedingGrounds = region.FeedingGrounds,
             };
+        }
+
+        public List<ReadRegionDTO> RegionToReadList (List<Region> regions) {
+            List<ReadRegionDTO> toReturn = new();
+
+            foreach(var region in regions) {
+                toReturn.Add(this.RegionToRead(region));
+            }
+
+            return toReturn;
         }
     }
 }

@@ -22,10 +22,6 @@ namespace bioSjenica.CustomMappers {
         regions = new List<Region>();
         foreach(var name in DTO.RegionNames) {
           var region = await _sqlContex.Regions.FirstOrDefaultAsync(r => r.Name == name);
-          if(region is null) {
-            _logger.LogError("Region not found");
-            throw (RequestException)new NotFoundException("region");
-          }
           regions.Add(region);
         }
       }
@@ -39,7 +35,7 @@ namespace bioSjenica.CustomMappers {
         Regions = regions,
       };
      }
-    public async Task<ReadPlantDTO> PlantToRead(Plant plant) {
+    public ReadPlantDTO PlantToRead(Plant plant) {
       return new ReadPlantDTO() {
         CommonName = plant.CommonName,
         LatinicName = plant.LatinicName,
@@ -50,5 +46,14 @@ namespace bioSjenica.CustomMappers {
       };
     }
 
+    public List<ReadPlantDTO> PlantToReadList(List<Plant> plants) {
+      List<ReadPlantDTO> toReturn = new();
+
+      foreach(var plant in plants) {
+        toReturn.Add(this.PlantToRead(plant));
+      }
+
+      return toReturn;
+    }
   }
 }

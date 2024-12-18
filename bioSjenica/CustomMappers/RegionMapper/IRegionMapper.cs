@@ -6,6 +6,7 @@ namespace bioSjenica.CustomMappers
     public interface IRegionMapper
     {
         public Task<Region> CreateToRegion(CreateRegionDTO DTO);
-        public Task<ReadRegionDTO> RegionToRead(Region region);
+        public ReadRegionDTO RegionToRead(Region region);
+        public List<ReadRegionDTO> RegionToReadList (List<Region> regions);
     }
 }

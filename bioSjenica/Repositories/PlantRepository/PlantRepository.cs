@@ -7,6 +7,7 @@ using bioSjenica.Models;
 using bioSjenica.Utilities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace bioSjenica.Repositories {
     public class PlantRepository : IPlantRepository
@@ -23,64 +24,58 @@ namespace bioSjenica.Repositories {
       public async Task<ReadPlantDTO> Create(CreatePlantDTO plantPayload)
       {
         var plantToAdd = await _plantMapper.CreateToPlant(plantPayload);
+        _sqlContext.Plants.Add(plantToAdd);
+        
         try {
-          //Handle image saving
-          if(!(plantPayload.Image is null) && plantPayload.Image.Length > 0) {
-            var res = await Image.Create("plants", plantPayload.CommonName, plantPayload.Image);
-          plantToAdd.ImageUrl = res.StartsWith("success") ? res.Split("//")[1] : "no-image.jpg";
-          }
-          _sqlContext.Plants.Add(plantToAdd);
           await _sqlContext.SaveChangesAsync();
-          return await _plantMapper.PlantToRead(plantToAdd);
         }
         catch(Exception e) {
-          // TODO: Implement server error;
-          _logger.LogError("Internal server error");
-          throw new NotImplementedException();
+          throw new RequestException("Database error", errorCodes.INTERNAL_ERROR);
         }
+
+        return _plantMapper.PlantToRead(plantToAdd);
       }
       public async Task<ReadPlantDTO> Delete(string latinicOrCommonName)
       {
           var plantToDelete = _sqlContext.Plants.FirstOrDefault(p => p.CommonName == latinicOrCommonName || p.LatinicName == latinicOrCommonName);
-          if(plantToDelete is null) {
-            _logger.LogError("Plant not found");
-            throw (RequestException)new NotFoundException("Plant");
+          if(plantToDelete is null) throw new RequestException("Plant not found", errorCodes.NOT_FOUND);
+          
+          _sqlContext.Plants.Remove(plantToDelete);
+          try {
+            await _sqlContext.SaveChangesAsync();
+          }
+          catch(Exception e) {
+            throw new RequestException("Db error", errorCodes.INTERNAL_ERROR);
           }
           //Handle image removal
+          // TODO: HANDLE RACE CONDITION
           Image.Delete(plantToDelete.ImageUrl);
-          _sqlContext.Plants.Remove(plantToDelete);
-          await _sqlContext.SaveChangesAsync();
-          return await _plantMapper.PlantToRead(plantToDelete);
+
+          return _plantMapper.PlantToRead(plantToDelete);
       }
       public async Task<List<ReadPlantDTO>> Get(string? regionName)
       {
-          List<ReadPlantDTO> plantDtosToReturn = new List<ReadPlantDTO>();
-          var plantsToReturn = await _sqlContext.Plants
-                               .Include(p => p.Regions)
-                               .ToListAsync();
-          _logger.LogInformation($"We should be in with region name: {regionName}");
-          if(!(regionName is null)) {
-            plantsToReturn = plantsToReturn.Where(p => p.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToList();
-            //Handle not found plants on region
-            throw new NotFoundException("Region");
-          }
-          foreach(var plant in plantsToReturn) {
-            plantDtosToReturn.Add(await _plantMapper.PlantToRead(plant));
-          }
-          return plantDtosToReturn;
+        List<Plant> plants;
+
+        if(regionName is null) {
+          plants = await _sqlContext.Plants.ToListAsync();
+        }
+        else {
+          plants = await _sqlContext.Plants.Where(p => p.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToListAsync();
+        }
+
+        return _plantMapper.PlantToReadList(plants);
       }
       public async Task<ReadPlantDTO> Update(string latinicOrCommonName, CreatePlantDTO plantPayload)
       {
           var plantToUpdate = await _sqlContext.Plants
                                     .Include(p => p.Regions)
                                     .FirstOrDefaultAsync(p => p.CommonName == latinicOrCommonName || p.LatinicName == latinicOrCommonName);
-          if(plantToUpdate is null) {
-            throw (RequestException)new NotFoundException("Plant");
-          }
+          if(plantToUpdate is null) throw new RequestException("Plant not found", errorCodes.NOT_FOUND);
           
           var newPlantInfo = await _plantMapper.CreateToPlant(plantPayload);
           //Check for image update 
-          if(!(plantPayload.Image is null) && plantPayload.Image.Length > 0) {
+          if(plantPayload.Image is not null && plantPayload.Image.Length > 0) {
             Image.Delete(plantToUpdate.ImageUrl);
             Image.Create("plants", plantPayload.CommonName, plantPayload.Image);
           }
@@ -95,8 +90,14 @@ namespace bioSjenica.Repositories {
           plantToUpdate.SpecialTime = newPlantInfo.SpecialTime ?? plantToUpdate.SpecialTime;
           plantToUpdate.ImageUrl = newPlantInfo.ImageUrl ?? plantToUpdate.ImageUrl;
 
-          await _sqlContext.SaveChangesAsync();
-          return await _plantMapper.PlantToRead(plantToUpdate);
+          try {
+            await _sqlContext.SaveChangesAsync();
+          }
+          catch(Exception e) {
+            throw new RequestException("Error saving to db", errorCodes.INTERNAL_ERROR);
+          }
+          
+          return _plantMapper.PlantToRead(plantToUpdate);
       }
     }
 }

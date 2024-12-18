@@ -1,11 +1,10 @@
-﻿using bioSjenica.CustomMappers;
+﻿using System.Reflection;
+using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs.AmnimalsDTO;
 using bioSjenica.Exceptions;
 using bioSjenica.Models;
-using bioSjenica.Repositories.RegionRepository;
 using bioSjenica.Utilities;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace bioSjenica.Repositories.AnimalRepository
@@ -22,127 +21,87 @@ namespace bioSjenica.Repositories.AnimalRepository
             _animalMapper = animalMapper;
         }
 
+        // Validation
+        // TODO: IMPLEMENT
+
         public async Task<ReadAnimalDTO> Create(CreateAnimalDTO newAnimal)
         {   
-            try
-            {
-                Animal animalToAdd = await _animalMapper.CreateToAnimal(newAnimal);
-                //Saving the image
-                if(!(newAnimal.Image is null) && newAnimal.Image.Length > 0) {
-                    var res = await Image.Create("animals", animalToAdd.CommonName, newAnimal.Image);
-                    //TODO: For the love of god implement a proper error handler
-                    if(res.StartsWith("fail")) {
-                        throw (RequestException)new NotFoundException($"{res.Split("//")[1]}");
-                    }
-                    animalToAdd.ImageUrl = res.Split("//")[1];
-                }
-                else {
-                    animalToAdd.ImageUrl = "images/no-image.png";
-                }
+            Animal animalToCreate = await _animalMapper.CreateToAnimal(newAnimal);
+            _sqlContext.Add(animalToCreate);
+            
+            // Image creation
+            try {
+                string url = await Image.Create("animals", animalToCreate.CommonName, newAnimal.Image);
+                animalToCreate.ImageUrl = url;
+            }
+            catch(Exception e) {
+                _logger.LogError("Image saving failed", e);
+                throw new RequestException("Failed saving the image", errorCodes.INTERNAL_ERROR);
+            }
 
-                //Add region to database and save
-                _sqlContext.Add(animalToAdd);
+            try {
                 await _sqlContext.SaveChangesAsync();
-                //Form a DTO for read
-                return await _animalMapper.AnimalToRead(animalToAdd);
             }
-            catch(Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                return null;
+            catch(Exception e) {
+                throw new RequestException("Internal error", errorCodes.INTERNAL_ERROR);
             }
+
+            return _animalMapper.AnimalToRead(animalToCreate);
         }
 
         public async Task<ReadAnimalDTO> Delete(string latinicOrCommonName)
         {
-            try
-            {
-                var animalToDel = _sqlContext.Animals.FirstOrDefault(a => a.LatinicName == latinicOrCommonName || a.CommonName == latinicOrCommonName);
-                if(animalToDel is null )
-                {
-                    _logger.LogError("Not found");
-                    throw (RequestException)new NotFoundException("Animal");
-                }
-                //Remove an image
-                Image.Delete(animalToDel.ImageUrl);
-                //Delete an animal
-                _sqlContext.Remove(animalToDel);
+            var animalToDel = _sqlContext.Animals.FirstOrDefault(a => a.LatinicName == latinicOrCommonName || a.CommonName == latinicOrCommonName);
+            if(animalToDel is null) throw new RequestException("Animal not found", errorCodes.NOT_FOUND, ErrorDict.CreateDict("LatinicOrCommonName", latinicOrCommonName));
+
+            _sqlContext.Animals.Remove(animalToDel);
+            try {
                 await _sqlContext.SaveChangesAsync();
-                return await _animalMapper.AnimalToRead(animalToDel);
             }
-            catch(Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                throw new NotFoundException("Animal");
+            catch(Exception e) {
+                throw new RequestException("Database error", errorCodes.INTERNAL_ERROR);
             }
+
+            return _animalMapper.AnimalToRead(animalToDel);
         }
 
         public async Task<List<ReadAnimalDTO>> Get(string? regionName)
         {
-            try
-            {
-                //Get info
-                var animals = await _sqlContext.Animals
-                    .Include(a => a.Regions)
-                    .ToListAsync();
+            List<Animal>? animals;
 
-                //Check for region query
-                if(!(regionName is null)) {
-                    animals = animals.Where(a => a.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToList();
+            try {
+                if(regionName is null) {
+                    animals = await _sqlContext.Animals.ToListAsync();
                 }
+                else {
+                    animals = await _sqlContext.Animals.Where( a => a.Regions.FirstOrDefault(r => r.Name == regionName) != null).ToListAsync();
+                }
+            }
+            catch(Exception e) {
+                _logger.LogError("Db failed");
+                throw new RequestException("Db error", errorCodes.INTERNAL_ERROR);
+            }
 
-                //Map dtos
-                List<ReadAnimalDTO> animalInfo = [];
-                foreach(var animal in animals)
-                {
-                    animalInfo.Add(await _animalMapper.AnimalToRead(animal));
-                }
-                return animalInfo;
-            }
-            catch(Exception e)
-            {
-                //Handle database exceptions
-                _logger.LogError(e, e.Message);
-                throw new NotImplementedException();
-            }
+            return _animalMapper.AnimalToReadList(animals);
         }
 
         public async Task<ReadAnimalDTO> Update(string latinicOrCommonName, CreateAnimalDTO updateAnimalPayload)
         {
-            //Get the required animal
-            Animal animalToUpdate = await _sqlContext.Animals
-                                    .Include(a => a.Regions)
-                                    .FirstOrDefaultAsync(a => a.LatinicName.ToLower() == latinicOrCommonName.ToLower() || a.CommonName.ToLower() == latinicOrCommonName.ToLower());
-            if(animalToUpdate is null)
-            {
-                _logger.LogError("Animal not found");
-                throw (RequestException)new NotFoundException("Animal");
+            var animal = _sqlContext.Animals.FirstOrDefault(a => a.LatinicName == latinicOrCommonName || a.CommonName == latinicOrCommonName);
+            if(animal is null) throw new RequestException("Not found animal", errorCodes.NOT_FOUND, ErrorDict.CreateDict("LatinicOrCommonName", latinicOrCommonName));
+
+            if(updateAnimalPayload.RingNumber is not null) animal.RingNumber = updateAnimalPayload.RingNumber;
+            if(updateAnimalPayload.LatinicName is not null) animal.LatinicName = updateAnimalPayload.LatinicName;
+            if(updateAnimalPayload.CommonName is not null) animal.CommonName = updateAnimalPayload.CommonName;
+
+            try {
+                await _sqlContext.SaveChangesAsync();
             }
-            //Check for regions
-            var updateAnimal = await _animalMapper.CreateToAnimal(updateAnimalPayload);
-            //Check if picture needs to be updated
-            if(updateAnimalPayload.Image != null) 
-            {
-                Image.Delete(animalToUpdate.ImageUrl);
-                Image.Create("animals", updateAnimalPayload.CommonName, updateAnimalPayload.Image);
-            }
-            string? newUrl = null;
-            //Update picture name if name changed
-            if(!(updateAnimalPayload.CommonName is null)) {
-                newUrl = Image.Move(animalToUpdate.ImageUrl, updateAnimal.ImageUrl);
+            catch(Exception e) {
+                throw new RequestException("Database error", errorCodes.INTERNAL_ERROR);
             }
 
-            //Update existing animal
-            animalToUpdate.ImageUrl = newUrl ?? animalToUpdate.ImageUrl;
-            animalToUpdate.RingNumber = updateAnimal.RingNumber ?? animalToUpdate.RingNumber;
-            animalToUpdate.LatinicName = updateAnimal.LatinicName ?? animalToUpdate.LatinicName;
-            animalToUpdate.CommonName = updateAnimal.CommonName ?? animalToUpdate.CommonName;
-            animalToUpdate.Regions = updateAnimal.Regions ?? animalToUpdate.Regions;
-            animalToUpdate.FeedingGrounds = updateAnimal.FeedingGrounds ?? animalToUpdate.FeedingGrounds;
-            //Save changes
-            await _sqlContext.SaveChangesAsync();
-            //Create readDTO from new animal
-            return await _animalMapper.AnimalToRead(animalToUpdate);
+            return _animalMapper.AnimalToRead(animal);
         }
     }
 }

@@ -4,7 +4,7 @@ using bioSjenica.Models;
 namespace bioSjenica.CustomMappers {
     public class UserMapper : IUserMapper
     {
-        public async Task<ReadUserDTO> UserToRead(User user)
+        public ReadUserDTO UserToRead(User user)
         {
           return new ReadUserDTO() {
             SSN = user.SSN,
@@ -15,6 +15,16 @@ namespace bioSjenica.CustomMappers {
             Email = user.Email,
             PayGrade = user.PayGrade,
           };
+        }
+
+        public List<ReadUserDTO> UserToReadList(List<User> users) {
+          var usersToReturn = new List<ReadUserDTO>();
+
+          foreach(var user in users) {
+            usersToReturn.Add(this.UserToRead(user));
+          }
+
+          return usersToReturn;
         }
     }
 }

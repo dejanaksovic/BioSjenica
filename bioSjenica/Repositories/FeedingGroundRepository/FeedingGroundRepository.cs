@@ -1,9 +1,10 @@
-using System.Runtime.CompilerServices;
+using bioSjenica.Utilities;
 using bioSjenica.CustomMappers;
 using bioSjenica.Data;
 using bioSjenica.DTOs;
 using bioSjenica.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using bioSjenica.Models;
 
 namespace bioSjenica.Repositories {
   public class FeedingGroundRepository : IFeedingGroundRepository
@@ -21,49 +22,53 @@ namespace bioSjenica.Repositories {
         //TODO: HANDLE DATABASE ERRORS
         var feedingGroundToAdd = await _feedingGroundMapper.CreateToFeedingGround(feedingGroundPayload);
         _sqlContext.FeedingGorunds.Add(feedingGroundToAdd);
-        await _sqlContext.SaveChangesAsync();
 
-        return await _feedingGroundMapper.FeedingGroundToRead(feedingGroundToAdd);
+        try {
+          await _sqlContext.SaveChangesAsync();
+        }
+        catch(Exception e) {
+          throw new RequestException("Error saving to DB", errorCodes.INTERNAL_ERROR);
+
+        }
+        return _feedingGroundMapper.FeedingGroundToRead(feedingGroundToAdd);
       }
       public async Task<ReadFeedingGroundDTO> Delete(int feedingGroundNumber)
       {
-        // TODO: Handle database errors
         var feedingGroundToDelete = await _sqlContext.FeedingGorunds.FirstOrDefaultAsync(fg => fg.GroundNumber == feedingGroundNumber);
-        if(feedingGroundToDelete is null) {
-          _logger.LogError("Feeding ground not found");
-          throw (RequestException)new NotFoundException("Feeding ground");
-        }
-        _sqlContext.Remove(feedingGroundToDelete);
-        await _sqlContext.SaveChangesAsync();
+        if(feedingGroundToDelete is null) throw new RequestException("Feeding ground not found", errorCodes.NOT_FOUND, ErrorDict.CreateDict("GroundNumber", feedingGroundNumber));
 
-        return await _feedingGroundMapper.FeedingGroundToRead(feedingGroundToDelete);
+        _sqlContext.FeedingGorunds.Remove(feedingGroundToDelete);
+        
+        try {
+          await _sqlContext.SaveChangesAsync();
+        }
+        catch(Exception e) {
+          throw new RequestException("Error savign to DB", errorCodes.INTERNAL_ERROR);
+        }
+
+        return _feedingGroundMapper.FeedingGroundToRead(feedingGroundToDelete);
       }
       public async Task<List<ReadFeedingGroundDTO>> Get(int? month)
       {
         // TODO: Handle database errors
-        List<ReadFeedingGroundDTO> feedingGroundsToReturn = new List<ReadFeedingGroundDTO>();
-        var feedingGrounds = await _sqlContext.FeedingGorunds.ToListAsync();
-        if(!(month is null) && month != 0) {
-          feedingGrounds = feedingGrounds.Where(fg => fg.StartWork >= month && fg.EndWork <= month).ToList();
-          if(feedingGrounds.Count() == 0) {
-            throw new NotFoundException("Feeding ground");
-          }
+        List<FeedingGround>? feedingGrounds; 
+        if(month is not null && month != 0) {
+          feedingGrounds = await _sqlContext.FeedingGorunds.Where(fg => fg.StartWork >= month && fg.EndWork <= month).ToListAsync();
         }
-        foreach(var feedingGround in feedingGrounds) {
-          feedingGroundsToReturn.Add(await _feedingGroundMapper.FeedingGroundToRead(feedingGround));
+        else {
+          feedingGrounds = await _sqlContext.FeedingGorunds.ToListAsync();
         }
-        return feedingGroundsToReturn;
+
+        return _feedingGroundMapper.FeedingToReadList(feedingGrounds);
       }
       public async Task<ReadFeedingGroundDTO> Update(CreateFeedingGroundDTO feedingGroundPayload, int feedingGroundNumber)
       {
-        //TODO: Handle database errors
         var feedingGroundToUpdate = _sqlContext.FeedingGorunds
                                     .Include(fg => fg.Region)
                                     .Include(fg => fg.Animals)
                                     .FirstOrDefault(fg => fg.GroundNumber == feedingGroundNumber);
-        if(feedingGroundToUpdate is null) {
-          throw (RequestException)new NotFoundException("Feeding ground");
-        }
+        if(feedingGroundToUpdate is null) throw new RequestException("Feeding ground not found", errorCodes.NOT_FOUND);
+
         var newProps = await _feedingGroundMapper.CreateToFeedingGround(feedingGroundPayload);
         //Update
         feedingGroundToUpdate.GroundNumber = newProps.GroundNumber != 0 ? newProps.GroundNumber : feedingGroundToUpdate.GroundNumber;
@@ -72,8 +77,14 @@ namespace bioSjenica.Repositories {
         feedingGroundToUpdate.EndWork = (newProps.EndWork != 0) ? newProps.EndWork : feedingGroundToUpdate.EndWork;
         feedingGroundToUpdate.Animals = (newProps.Animals != null) ? newProps.Animals : feedingGroundToUpdate.Animals;
 
-        await _sqlContext.SaveChangesAsync();
-        return await _feedingGroundMapper.FeedingGroundToRead(feedingGroundToUpdate);
+        try {
+          await _sqlContext.SaveChangesAsync();
+        }
+        catch(Exception e) {
+          throw new RequestException("Error saving to db", errorCodes.INTERNAL_ERROR);
+        }
+        
+        return _feedingGroundMapper.FeedingGroundToRead(feedingGroundToUpdate);
       }
   }
 }

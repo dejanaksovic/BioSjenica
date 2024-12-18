@@ -21,7 +21,6 @@ namespace bioSjenica.Utilities {
       }
     }
     public static void Delete(string imageUrl) {
-      Console.WriteLine($"I do be existing and i do be deleting with info {basePath}/images/{imageUrl}");
       if(imageUrl == "no-image.png") {
         return;
       }
@@ -38,7 +37,7 @@ namespace bioSjenica.Utilities {
       return null;
     }
     public static bool Exists(string folderName, string imageUrl) {
-      return File.Exists($"{basePath}/images/{imageUrl}") ? true : false;
+      return File.Exists($"{basePath}/images/${folderName}/{imageUrl}") ? true : false;
     }
   }
 }

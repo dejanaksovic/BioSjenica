@@ -4,6 +4,7 @@ using bioSjenica.DTOs.Regions;
 using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
+using bioSjenica.Utilities;
 
 namespace bioSjenica.Repositories.RegionRepository
 {
@@ -20,31 +21,40 @@ namespace bioSjenica.Repositories.RegionRepository
             _regionMapper = regionMapper;
         }
 
+        public bool RegionExists(string name) {
+            if(_sqlContext.Regions.FirstOrDefault(r => r.Name == name) is null) return false;
+
+            return true;
+        }
         public async Task<ReadRegionDTO> CreateRegion(CreateRegionDTO newRegion)
         {
             Region regionToAdd = await _regionMapper.CreateToRegion(newRegion);
             
             //Save changes
             _sqlContext.Add(regionToAdd);
-            await _sqlContext.SaveChangesAsync();
+            try {
+                await _sqlContext.SaveChangesAsync();
+            }
+            catch(Exception e) {
+                throw new RequestException("Db error", errorCodes.INTERNAL_ERROR);
+            }
 
-            ReadRegionDTO regionToSend = await _regionMapper.RegionToRead(regionToAdd);
-
-            return regionToSend;
+            return _regionMapper.RegionToRead(regionToAdd);
         }
         public async Task<ReadRegionDTO> DeleteRegionByName(string regionName)
         {
-            Region regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
-            if(regionToDelete is null)
-            {
-                _logger.LogError("Region not found");
-                throw (RequestException)new NotFoundException("Region");
-            }
+            Region? regionToDelete = _sqlContext.Regions.FirstOrDefault(r => r.Name == regionName);
+            if(regionToDelete is null) throw new RequestException("Region not found", errorCodes.NOT_FOUND);
+
             _sqlContext.Regions.Remove(regionToDelete);
-            await _sqlContext.SaveChangesAsync();
+            try {
+                await _sqlContext.SaveChangesAsync();
+            }
+            catch(Exception e) {
+                throw new RequestException("Db error", errorCodes.INTERNAL_ERROR);
+            }
             //Read dto to return
-            ReadRegionDTO regionToRetun = await _regionMapper.RegionToRead(regionToDelete);
-            return regionToRetun;
+            return _regionMapper.RegionToRead(regionToDelete);
         }
         public async Task<List<ReadRegionDTO>> GetAllRegions()
         {
@@ -53,12 +63,8 @@ namespace bioSjenica.Repositories.RegionRepository
                                         .Include(r => r.FeedingGrounds)
                                         .Include(r => r.Plants)
                                         .ToListAsync();
-            List<ReadRegionDTO> regionsToReturn = new();
-            foreach(Region region in regions)
-            {
-                regionsToReturn.Add(await _regionMapper.RegionToRead(region));
-            }
-            return regionsToReturn;
+
+            return _regionMapper.RegionToReadList(regions);
         }
         public async Task<ReadRegionDTO> UpdateRegion(CreateRegionDTO updateRegionPayload, string regionName)
         {
@@ -66,9 +72,7 @@ namespace bioSjenica.Repositories.RegionRepository
                                     .Include(r => r.Animals)
                                     .FirstOrDefault(r => r.Name == regionName);
 
-            if(regionToUpdate is null) {
-                throw (RequestException)new NotFoundException("Region");
-            }
+            if(regionToUpdate is null) throw new RequestException("Region not found", errorCodes.NOT_FOUND);
 
             var updateRegion = await _regionMapper.CreateToRegion(updateRegionPayload);
             
@@ -83,13 +87,13 @@ namespace bioSjenica.Repositories.RegionRepository
             try
             {
                 await _sqlContext.SaveChangesAsync();
-                return await _regionMapper.RegionToRead(updateRegion);
             }
-
             catch(Exception e)
             {
-                return null;
+                throw new RequestException("Db error", errorCodes.INTERNAL_ERROR);
             }
+
+            return _regionMapper.RegionToRead(updateRegion);
         }
     }
 }

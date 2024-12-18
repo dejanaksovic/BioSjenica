@@ -4,6 +4,7 @@ using bioSjenica.DTOs;
 using bioSjenica.Exceptions;
 using bioSjenica.Models;
 using Microsoft.EntityFrameworkCore;
+using bioSjenica.Utilities;
 
 namespace bioSjenica.Repositories {
     public class UserRepository : IUserRepository
@@ -20,51 +21,58 @@ namespace bioSjenica.Repositories {
         public async Task<ReadUserDTO> Create(User user)
         {
             _sqlContext.Users.Add(user);
-            await _sqlContext.SaveChangesAsync();
-            return await _userMapper.UserToRead(user);
+
+            try {
+              await _sqlContext.SaveChangesAsync();
+            }
+            catch(Exception e) {
+              throw new RequestException("Database error", errorCodes.INTERNAL_ERROR);
+            }
+            return _userMapper.UserToRead(user);
         }
 
         public async Task<ReadUserDTO> Delete(string SSN)
         {
           var userToDelete = _sqlContext.Users.FirstOrDefault(u => u.SSN == SSN);
-          if(userToDelete is null) {
-            throw new NotFoundException("User");
-          }
+          if(userToDelete is null) throw new RequestException("User not found", errorCodes.NOT_FOUND);
+
           _sqlContext.Users.Remove(userToDelete);
-          await _sqlContext.SaveChangesAsync();
-          return await _userMapper.UserToRead(userToDelete);     
+          
+          try {
+            await _sqlContext.SaveChangesAsync();
+          }
+          catch(Exception e) {
+            throw new RequestException("Saving to db", errorCodes.INTERNAL_ERROR);
+          }  
+
+          return _userMapper.UserToRead(userToDelete);     
         }
         public async Task<List<ReadUserDTO>> Get()
         {
             List<User> users = await _sqlContext.Users.ToListAsync();
 
-            List<ReadUserDTO> usersToReturn = [];
-            foreach (User user in users) {
-              usersToReturn.Add(await _userMapper.UserToRead(user));
-            }
-            return usersToReturn;
+            return _userMapper.UserToReadList(users);
         }
 
         public async Task<ReadUserDTO> GetBySsn(string SSN) {
           var user = await _sqlContext.Users.FirstOrDefaultAsync(u => u.SSN == SSN);
-          if(user is null)
-            throw new NotImplementedException();
-          return await _userMapper.UserToRead(user);
+          if(user is null) throw new RequestException("User not found", errorCodes.NOT_FOUND, ErrorDict.CreateDict("SSN", SSN));
+          
+          return _userMapper.UserToRead(user);
         }
 
         public async Task<ReadUserDTO> GetByEmail(string email) {
           var user = await _sqlContext.Users.FirstOrDefaultAsync(u => u.Email.ToString() == email);
-          if(user is null)
-            throw new NotImplementedException();
-          return await _userMapper.UserToRead(user);
+          if(user is null) throw new RequestException("User not found", errorCodes.NOT_FOUND, ErrorDict.CreateDict("Email", email));
+
+          return _userMapper.UserToRead(user);
         }
 
         public async Task<ReadUserDTO> Update(User userPayload, string SSN)
         {
             var userToUpdate = _sqlContext.Users.FirstOrDefault(u => u.SSN == SSN);
-            if(userToUpdate is null) {
-              throw new NotFoundException("User");
-            }
+            if(userToUpdate is null) throw new RequestException("User not found", errorCodes.NOT_FOUND, ErrorDict.CreateDict("SSN", SSN));
+
             userToUpdate.SSN ??= userPayload.SSN;
             userToUpdate.FirstName ??= userPayload.FirstName;
             userToUpdate.LastName ??= userPayload.LastName;
@@ -72,8 +80,14 @@ namespace bioSjenica.Repositories {
             userToUpdate.PayGrade = userPayload.PayGrade != 0 ? userPayload.PayGrade : userToUpdate.PayGrade;
             userToUpdate.Role ??= userPayload.Role;
 
-            await _sqlContext.SaveChangesAsync();
-            return await _userMapper.UserToRead(userToUpdate);
+            try {
+              await _sqlContext.SaveChangesAsync();
+            }
+            catch(Exception e) {
+              throw new RequestException("Database error", errorCodes.INTERNAL_ERROR);
+            }
+            
+            return _userMapper.UserToRead(userToUpdate);
         }
     }
 }

@@ -4,6 +4,7 @@ using bioSjenica.Models;
 namespace bioSjenica.CustomMappers {
   public interface IFeedingGroundsMapper {
     public Task<FeedingGround> CreateToFeedingGround(CreateFeedingGroundDTO DTO);
-    public Task<ReadFeedingGroundDTO> FeedingGroundToRead(FeedingGround feedingGround);
+    public ReadFeedingGroundDTO FeedingGroundToRead(FeedingGround feedingGround);
+    public List<ReadFeedingGroundDTO> FeedingToReadList(List<FeedingGround> feedingGrounds);
   }
 }

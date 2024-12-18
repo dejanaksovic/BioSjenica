@@ -15,35 +15,24 @@ namespace bioSjenica.Controllers
         {
             _animalRepository = animalRepository;
         }
+
         [HttpPost]
-        [Authorize(Roles = $"{Roles.Worker}")]
+        // [Authorize(Roles = $"{Roles.Worker}")]
         public async Task<ActionResult<CreateAnimalDTO>> Create([FromForm]CreateAnimalDTO animal)
         {
-            try
-            {
-                var animalToReturn = await _animalRepository.Create(animal);
-                return Ok(animalToReturn);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+            var animalToReturn = await _animalRepository.Create(animal);
+            return Ok(animalToReturn);
+        }   
+        
         [HttpGet]
         public async Task<ActionResult<List<CreateAnimalDTO>>> Get([FromQuery]string? regionName)
         {
-            try
-            {
-                var animals = await _animalRepository.Get(regionName);
-                return Ok(animals);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            var animals = await _animalRepository.Get(regionName);
+            return Ok(animals);
         }
+        
         [HttpPatch]
-        [Authorize(Roles = $"{Roles.Worker}")]
+        // [Authorize(Roles = $"{Roles.Worker}")]
         [Route("{latinicOrCommonName}")]
         public async Task<ActionResult<CreateAnimalDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody] CreateAnimalDTO updateRequest)
         {
@@ -51,19 +40,12 @@ namespace bioSjenica.Controllers
             return Ok(updatedAnimal);
         }
         [HttpDelete]
-        [Authorize(Roles = $"{Roles.Worker}")]
+        // [Authorize(Roles = $"{Roles.Worker}")]
         [Route("{latinicOrCommonName}")]
         public async Task<ActionResult<CreateAnimalDTO>> Delete([FromRoute] string latinicOrCommonName)
         {
-            try
-            {
-                var deletedAnimal = await _animalRepository.Delete(latinicOrCommonName);
-                return Ok(deletedAnimal);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            var deletedAnimal = await _animalRepository.Delete(latinicOrCommonName);
+            return Ok(deletedAnimal);
         }
     }
 }

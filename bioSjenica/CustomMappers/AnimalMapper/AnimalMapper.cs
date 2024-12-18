@@ -15,7 +15,7 @@ namespace bioSjenica.CustomMappers {
         _logger = logger;
         _sqlContext = context;
       }
-      public async Task<ReadAnimalDTO> AnimalToRead(Animal animal)
+      public ReadAnimalDTO AnimalToRead(Animal animal)
       {
         // warning: not adding more nesting, it kinda stops at level one
         // If you want to get the information about individual regions make seperate api call
@@ -69,7 +69,7 @@ namespace bioSjenica.CustomMappers {
           }
         }
         //Return values
-        return new Animal(){
+        return new Animal {
           LatinicName = DTO.LatinicName,
           CommonName = DTO.CommonName,
           RingNumber = DTO.RingNumber,
@@ -77,6 +77,16 @@ namespace bioSjenica.CustomMappers {
           Regions = regions,
           FeedingGrounds = feedingGrounds,
         };
+      }
+
+      public List<ReadAnimalDTO> AnimalToReadList(List<Animal> animals) {
+        List<ReadAnimalDTO> toReturn = new();
+
+        foreach(var animal in animals) {
+          toReturn.Add(this.AnimalToRead(animal));
+        }
+
+        return toReturn;
       }
     }
 }

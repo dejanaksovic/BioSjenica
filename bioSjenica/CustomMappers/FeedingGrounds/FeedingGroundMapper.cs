@@ -49,7 +49,7 @@ namespace bioSjenica.CustomMappers {
       };
     }
     
-    public async Task<ReadFeedingGroundDTO> FeedingGroundToRead(FeedingGround feedingGround)
+    public ReadFeedingGroundDTO FeedingGroundToRead(FeedingGround feedingGround)
     {
         return new ReadFeedingGroundDTO() {
           GroundNumber = feedingGround.GroundNumber,
@@ -59,5 +59,15 @@ namespace bioSjenica.CustomMappers {
           Animals = feedingGround.Animals,
         };
     }
+
+    public List<ReadFeedingGroundDTO> FeedingToReadList(List<FeedingGround> feedingGrounds) {
+      List<ReadFeedingGroundDTO> toReturn = new();
+
+      foreach(var fg in feedingGrounds) {
+        toReturn.Add(this.FeedingGroundToRead(fg));
+      }
+
+      return toReturn;
     }
+  }
 }

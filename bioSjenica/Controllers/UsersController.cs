@@ -15,19 +15,23 @@ namespace bioSjenica.Controllers {
     {
       _userRepository = userRepository;
     }
+
     [HttpPost]
     public async Task<ActionResult<ReadUserDTO>> CreateUser([FromBody] User user) {
       return await _userRepository.Create(user);
     }
+
     [HttpGet]
     public async Task<ActionResult<List<ReadUserDTO>>> GetUsers() {
       return await _userRepository.Get();
     }
+
     [HttpPatch]
     [Route("{SSN}")]
     public async Task<ActionResult<ReadUserDTO>> UpdateUser([FromRoute]string SSN, [FromBody]User userPayload) {
       return await _userRepository.Update(userPayload, SSN);
     }
+    
     [HttpDelete]
     [Route("{SSN}")]
     public async Task<ActionResult<ReadUserDTO>> DeleteUser([FromRoute]string SSN) {

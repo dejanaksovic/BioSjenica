@@ -12,13 +12,16 @@ namespace bioSjenica.Middleware {
         try {
           await next(context);
         }
-        catch(RequestException e) {
-          context.Response.Headers.ContentType = "application/json";
-          context.Response.StatusCode = e.StatusCode;
-          var details = new ProblemDetails() {
+        catch(RequestException e) 
+        {
+          var problemDetails = new ProblemDetails {
             Detail = e.ErrorMessage,
           };
-          await context.Response.WriteAsync(JsonSerializer.Serialize(details));
+
+          if(e.ExtendedInformation is not null) problemDetails.Extensions = e.ExtendedInformation;
+          context.Response.Headers.ContentType = "application/json";
+          context.Response.StatusCode = (int) e.StatusCode;
+          await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
         }
       }
     }

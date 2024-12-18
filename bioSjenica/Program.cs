@@ -21,13 +21,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(o => {
-    o.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme {
-        In = ParameterLocation.Header,
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-});
+builder.Services.AddSwaggerGen();
+
 
 // Custom services
 builder.Services.AddScoped<IRegionRepository, RegionRepository>();
@@ -43,23 +38,23 @@ builder.Services.AddScoped<IFeedingGroundsMapper, FeedingGroundMapper>();
 builder.Services.AddScoped<IUserMapper, UserMapper>();
 
 //JWT
-builder.Services.AddAuthentication(c => {
-    c.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    c.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x => {
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = false;
-    x.TokenValidationParameters = new TokenValidationParameters {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "123")
-        ),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
-    };
-});
+// builder.Services.AddAuthentication(c => {
+//     c.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//     c.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//     c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+// }).AddJwtBearer(x => {
+//     x.RequireHttpsMetadata = false;
+//     x.SaveToken = false;
+//     x.TokenValidationParameters = new TokenValidationParameters {
+//         ValidateIssuerSigningKey = true,
+//         IssuerSigningKey = new SymmetricSecurityKey(
+//             Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "123")
+//         ),
+//         ValidateIssuer = false,
+//         ValidateAudience = false,
+//         ClockSkew = TimeSpan.Zero
+//     };
+// });
 
 //Middleware
 builder.Services.AddTransient<GlobalResponseExceptionMiddleware>();
