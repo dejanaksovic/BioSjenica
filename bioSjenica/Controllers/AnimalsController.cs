@@ -34,7 +34,7 @@ namespace bioSjenica.Controllers
         [HttpPatch]
         // [Authorize(Roles = $"{Roles.Worker}")]
         [Route("{latinicOrCommonName}")]
-        public async Task<ActionResult<CreateAnimalDTO>> Update([FromRoute] string latinicOrCommonName, [FromBody] CreateAnimalDTO updateRequest)
+        public async Task<ActionResult<CreateAnimalDTO>> Update([FromRoute] string latinicOrCommonName, [FromForm] CreateAnimalDTO updateRequest)
         {
             var updatedAnimal = await _animalRepository.Update(latinicOrCommonName, updateRequest);
             return Ok(updatedAnimal);

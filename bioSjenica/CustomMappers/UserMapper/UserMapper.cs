@@ -6,15 +6,15 @@ namespace bioSjenica.CustomMappers {
     {
         public ReadUserDTO UserToRead(User user)
         {
-          return new ReadUserDTO() {
-            SSN = user.SSN,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Address = user.Address,
-            Role = user.Role,
-            Email = user.Email,
-            PayGrade = user.PayGrade,
-          };
+            return new ReadUserDTO{
+              FirstName = user.FirstName,
+              LastName = user.LastName,
+              SSN = user.SSN,
+              Email = user.Email,
+              Address = user.Address,
+              PayGrade = user.PayGrade,
+              Role = user.Role,
+            };
         }
 
         public List<ReadUserDTO> UserToReadList(List<User> users) {

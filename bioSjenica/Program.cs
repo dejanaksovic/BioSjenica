@@ -30,6 +30,7 @@ builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IFeedingGroundRepository, FeedingGroundRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 //Custom mappers
 builder.Services.AddScoped<IAnimalMapper, AnimalMapper>();
 builder.Services.AddScoped<IRegionMapper, RegionMapper>();
@@ -59,6 +60,8 @@ builder.Services.AddScoped<IUserMapper, UserMapper>();
 //Middleware
 builder.Services.AddTransient<GlobalResponseExceptionMiddleware>();
 
+
+
 builder.Services.AddDbContext<SqlContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Sql"));
@@ -77,6 +80,7 @@ app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<GlobalResponseExceptionMiddleware>();
